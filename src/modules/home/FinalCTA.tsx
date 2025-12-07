@@ -61,9 +61,9 @@ export default function FinalCTA() {
           <div className="mt-10 pt-10 border-t border-white/10">
             <div className="flex flex-wrap items-center justify-center gap-8">
               {[
-                { icon: "🔒", text: "Military-Grade Encryption" },
-                { icon: "⚡", text: "Instant Transfers" },
-                { icon: "✓", text: "Audited & Secure" },
+                { icon: "", text: "Military-Grade Encryption" },
+                { icon: "", text: "Instant Transfers" },
+                { icon: "", text: "Audited & Secure" },
               ].map((item, index) => (
                 <div
                   key={index}
@@ -81,7 +81,7 @@ export default function FinalCTA() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
           <div className="glass-dark rounded-2xl p-6 text-left">
             <h3 className="text-lg font-bold text-white mb-2">
-              🎯 Zero Learning Curve
+              Zero Learning Curve
             </h3>
             <p className="text-sm text-white">
               As easy as a regular blockchain transfer, with privacy built-in
@@ -90,7 +90,7 @@ export default function FinalCTA() {
           </div>
           <div className="glass-dark rounded-2xl p-6 text-left">
             <h3 className="text-lg font-bold text-white mb-2">
-              💎 Premium Privacy, Fair Price
+              Premium Privacy, Fair Price
             </h3>
             <p className="text-sm text-white">
               90% lower fees than traditional privacy solutions, pay only for

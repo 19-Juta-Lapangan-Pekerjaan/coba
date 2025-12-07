@@ -96,7 +96,7 @@ export default function HowItWorks() {
           {/* Traditional */}
           <div className="glass-dark rounded-3xl p-8 border-2 border-red-500/30">
             <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-              <span className="text-2xl">❌</span> Traditional Blockchain
+             Traditional Blockchain
             </h4>
             <ul className="space-y-3">
               {[
@@ -116,7 +116,7 @@ export default function HowItWorks() {
           {/* Hidden Layer */}
           <div className="glass rounded-3xl p-8 border-2 border-stormy_teal-800/30">
             <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-              <span className="text-2xl">✅</span> With Hidden Layer
+              With Hidden Layer
             </h4>
             <ul className="space-y-3">
               {[

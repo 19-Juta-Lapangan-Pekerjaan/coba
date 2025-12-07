@@ -6,7 +6,6 @@ export default function UseCases() {
   const useCases = [
     {
       icon: Briefcase,
-      emoji: "💼",
       title: "Business Owners",
       subtitle: "Protect Your Commercial Edge",
       description:
@@ -19,7 +18,6 @@ export default function UseCases() {
     },
     {
       icon: User,
-      emoji: "👤",
       title: "Individual Users",
       subtitle: "Your Money, Your Privacy",
       description:
@@ -32,7 +30,6 @@ export default function UseCases() {
     },
     {
       icon: Building2,
-      emoji: "🏢",
       title: "DAOs & Organizations",
       subtitle: "Institutional-Grade Privacy",
       description:
@@ -45,7 +42,6 @@ export default function UseCases() {
     },
     {
       icon: Gem,
-      emoji: "💎",
       title: "NFT Collectors",
       subtitle: "Collect in Private",
       description:
@@ -58,7 +54,6 @@ export default function UseCases() {
     },
     {
       icon: TrendingUp,
-      emoji: "🚀",
       title: "DeFi Traders",
       subtitle: "Trade Without Exposing Strategy",
       description:
@@ -104,7 +99,6 @@ export default function UseCases() {
             >
               {/* Emoji & Icon */}
               <div className="flex items-center gap-4 mb-6">
-                <span className="text-5xl">{useCase.emoji}</span>
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-midnight_violet-800/20 to-stormy_teal-800/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <useCase.icon className="w-6 h-6 text-stormy_teal-900" />
                 </div>
@@ -146,7 +140,6 @@ export default function UseCases() {
             >
               {/* Emoji & Icon */}
               <div className="flex items-center gap-4 mb-6">
-                <span className="text-5xl">{useCase.emoji}</span>
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-midnight_violet-800/20 to-stormy_teal-800/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <useCase.icon className="w-6 h-6 text-stormy_teal-900" />
                 </div>

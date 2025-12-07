@@ -63,7 +63,7 @@ export default function SecurityTrust() {
         {/* Security Features Grid */}
         <div className="glass rounded-3xl p-8 mb-12">
           <h3 className="text-2xl font-bold text-white mb-8 text-center">
-            🔐 Security Features
+            Security Features
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {securityFeatures.map((feature, index) => (
@@ -114,7 +114,7 @@ export default function SecurityTrust() {
         {/* Certifications & Audits */}
         <div className="glass rounded-3xl p-8">
           <h3 className="text-2xl font-bold text-white mb-6 text-center">
-            🏆 Certifications & Audits
+            Certifications & Audits
           </h3>
 
           {/* Dummy Badge Placeholders */}
