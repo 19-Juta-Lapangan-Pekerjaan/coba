@@ -115,7 +115,7 @@ export function NavBar({ items, className }: NavBarProps) {
                 ease: [0.4, 0, 0.2, 1],
               }}
               onClick={handleOpenTransfer}
-              className="relative px-6 py-2 rounded-full font-semibold text-sm bg-midnight_violet-600 text-white hover:bg-midnight_violet-500 transition-colors shadow-lg"
+              className="relative px-6 py-2 rounded-full font-semibold text-sm bg-orange-500 text-white hover:bg-orange-600 transition-colors shadow-lg"
             >
               <span className="hidden md:inline">Transfer</span>
               <span className="md:hidden">
