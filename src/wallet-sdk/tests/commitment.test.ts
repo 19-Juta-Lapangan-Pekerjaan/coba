@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, test, expect } from "vitest";
 import { CommitmentGenerator } from "../commitment";
 
 describe("Pedersen Commitments", () => {
@@ -42,11 +42,12 @@ describe("Pedersen Commitments", () => {
   });
 
   test("invalid balance", () => {
-    const { outputs: validOutputs } = CommitmentGenerator.createBalancedCommitments(
-      100n,
-      [60n, 40n]
-    );
-    const invalid = CommitmentGenerator.createBalancedCommitments(100n, [50n, 50n]);
+    const { outputs: validOutputs } =
+      CommitmentGenerator.createBalancedCommitments(100n, [60n, 40n]);
+    const invalid = CommitmentGenerator.createBalancedCommitments(100n, [
+      50n,
+      50n,
+    ]);
     const invalidBalanced = CommitmentGenerator.verifyBalance(
       invalid.inputs.map((i) => i.commitment),
       [validOutputs[0].commitment, validOutputs[1].commitment]
