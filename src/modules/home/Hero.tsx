@@ -2,15 +2,9 @@
 
 import { ArrowUpRight } from "lucide-react";
 import { CardScanner } from "@/src/components/Layout/CardScanner";
-import { useTransfer } from "@/src/contexts/TransferContext";
+import Link from "next/link";
 
 export default function Hero() {
-  const { isExpanded, openTransfer } = useTransfer();
-
-  const handleExpand = () => {
-    openTransfer();
-  };
-
   return (
     <div className="flex text-center justify-center items-center flex-col bg-radial to-black from-dark_teal_3-400 min-h-screen">
       <CardScanner />
@@ -27,16 +21,13 @@ export default function Hero() {
           Fast, private, and invisible blockchain transfers—powered by next-gen
           encryption.
         </p>
-        {!isExpanded && (
-          <div className="inline-block relative">
-            <button
-              onClick={handleExpand}
-              className="h-15 px-6 sm:px-8 rounded-full bg-gradient-to-r from-midnight_violet-600 to-stormy_teal-600 hover:from-stormy_teal-600 hover:to-dark_teal-600 shadow-glow hover:shadow-glow-xl duration-300 hover:text-white hover:shadow-lg font-semibold hover:shadow-white cursor-pointer transition-all duration-500 py-3 text-lg sm:text-xl font-regular text-[#E3E3E3] tracking-[-0.01em] relative"
-            >
-              Transfer Now <ArrowUpRight className="inline-block" />
+        <div className="inline-block relative">
+          <Link href="/app">
+            <button className="h-15 px-6 sm:px-8 rounded-full bg-gradient-to-r from-midnight_violet-600 to-stormy_teal-600 hover:from-stormy_teal-600 hover:to-dark_teal-600 shadow-glow hover:shadow-glow-xl duration-300 hover:text-white hover:shadow-lg font-semibold hover:shadow-white cursor-pointer transition-all duration-500 py-3 text-lg sm:text-xl font-regular text-[#E3E3E3] tracking-[-0.01em] relative">
+              Launch Now <ArrowUpRight className="inline-block" />
             </button>
-          </div>
-        )}
+          </Link>
+        </div>
       </div>
     </div>
   );

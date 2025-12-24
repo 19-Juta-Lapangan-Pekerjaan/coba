@@ -20,7 +20,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   RainbowKitProvider,
   getDefaultConfig,
-  lightTheme,
+  darkTheme,
 } from "@rainbow-me/rainbowkit";
 
 // Create a QueryClient instance
@@ -44,10 +44,11 @@ export function Web3Provider({ children }: Web3ProviderProps) {
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider
           modalSize="compact"
-          theme={lightTheme({
-            accentColor: "#fa6c01",
+          theme={darkTheme({
+            accentColor: "#006466",
             accentColorForeground: "white",
-            borderRadius: "large",
+            borderRadius: "medium",
+            overlayBlur: "small",
           })}
         >
           {children}
