@@ -2,10 +2,6 @@
 
 Introducing Gelap, a confidential RWA Dark Pool and private execution layer built on the Mantle ecosystem. Gelap leverages a hybrid architecture combining Trusted Execution Environments (TEE) for real-time private matching with SP1 zkVM for verifiable correctness. This design allows users to utilize shielded vaults for depositing collateral, execute private swaps with zero MEV, and trade Real-World Assets (RWAs) like T-bills and private credit without exposing their positions or strategies on-chain. Gelap ensures market integrity by eliminating front-running and providing a compliance-ready infrastructure where institutional privacy meets decentralized settlement.
 
-feature utama. user bisa ...
-
-dengan fitur ini, kita bisa
-
 ## Why Built on Mantle?
 
 - **Modular Architecture for Privacy:** Mantle’s modular design provides the high-performance, low-cost data availability required to process heavy cryptographic proofs (SP1 zkVM) and TEE execution traces without checking scalability.
