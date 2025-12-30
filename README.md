@@ -1,4 +1,4 @@
-## Overview
+# Gelap
 
 Introducing Gelap, a confidential RWA Dark Pool and private execution layer built on the Mantle ecosystem. Gelap leverages a hybrid architecture combining Trusted Execution Environments (TEE) for real-time private matching with SP1 zkVM for verifiable correctness. This design allows users to utilize shielded vaults for depositing collateral, execute private swaps with zero MEV, and trade Real-World Assets (RWAs) like T-bills and private credit without exposing their positions or strategies on-chain. Gelap ensures market integrity by eliminating front-running and providing a compliance-ready infrastructure where institutional privacy meets decentralized settlement.
 
@@ -21,27 +21,29 @@ dengan fitur ini, kita bisa
 - The Zero-MEV Trading Experience: In an ecosystem focused on efficiency, Gelap offers Mantle users a "Dark Pool" experience where sandwich attacks and MEV are impossible, creating the fairest execution environment on the network.
 - First-Mover Advantage: As the first verifiable Confidential Dark Pool on Mantle, Gelap establishes itself as critical infrastructure, capturing early liquidity from privacy-conscious whales and institutions entering the ecosystem.
 
-# Problem ....
+## Problem
 
 - **Dark Forest Risks:** On-chain trading exposes order flow to MEV bots (sandwich attacks, front-running).
 - **Institutional Friction:** Institutions cannot trade RWAs (like T-Bills or Private Credit) on public chains because exposing their positions ruins their competitive advantage.
 - **Liquidity Fragmentation:** Existing privacy solutions are often slow or lack support for complex assets like RWAs.
 
-# Solution
+## Solution
 
 - **Dark Pool Execution:** Orders are matched inside a TEE (Enclave), keeping them invisible to the public until settled.
 - **Verifiable Privacy:** We use SP1 zkVM to generate zero-knowledge proofs confirming that the TEE acted honestly, without revealing the trade data.
 - **Shielded Assets:** Users trade with "shielded balances," ensuring wallet history remains unlinkable.
 
-# Products
+## Products
 
 ....
 
-# How Gelap works
+## How Gelap works
 
 ....
 
-# Deployments
+## Deployments
+
+### Mantle Tesnet
 
 | GelapShieldedAccount | `0x54EC23CBCE1A9d33F05C4d3d79Ec28Aff3c8ce8D` |
 | MockSP1Verifier | `0x79117dbB5A08B03cD796d06EdeEC6e0f2c554f4B` |
