@@ -6,9 +6,14 @@ import { Shield, Copy, Check } from "lucide-react";
 
 // Mock vault data
 const vaults = [
-  { id: "main-usdc", name: "Main Vault (USDC)", balance: 45000.00, currency: "USDC" },
+  {
+    id: "main-usdc",
+    name: "Main Vault (USDC)",
+    balance: 45000.0,
+    currency: "USDC",
+  },
   { id: "main-ustb", name: "USTB Vault", balance: 12287.52, currency: "USTB" },
-  { id: "sub-fund-a", name: "Sub-fund A", balance: 5000.00, currency: "USDC" },
+  { id: "sub-fund-a", name: "Sub-fund A", balance: 5000.0, currency: "USDC" },
 ];
 
 const beneficiaryTypes = [
@@ -53,12 +58,14 @@ export default function Transfer() {
         <div className="grid grid-cols-2 gap-4 mb-6">
           {/* FROM (SOURCE) */}
           <div>
-            <label className="block text-purple-400 text-sm mb-2">FROM (SOURCE)</label>
+            <label className="block text-purple-400 text-sm mb-2">
+              FROM (SOURCE)
+            </label>
             <div className="relative">
               <select
                 value={selectedVault.id}
                 onChange={(e) => {
-                  const vault = vaults.find(v => v.id === e.target.value);
+                  const vault = vaults.find((v) => v.id === e.target.value);
                   if (vault) setSelectedVault(vault);
                 }}
                 className="w-full bg-zinc-800/80 border border-zinc-700 rounded-lg px-4 py-3 text-white appearance-none cursor-pointer focus:outline-none focus:border-purple-500 transition-colors"
@@ -70,8 +77,18 @@ export default function Transfer() {
                 ))}
               </select>
               <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                <svg className="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                <svg
+                  className="w-4 h-4 text-zinc-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
                 </svg>
               </div>
             </div>
@@ -79,12 +96,16 @@ export default function Transfer() {
 
           {/* BENEFICIARY TYPE */}
           <div>
-            <label className="block text-purple-400 text-sm mb-2">BENEFICIARY TYPE</label>
+            <label className="block text-purple-400 text-sm mb-2">
+              BENEFICIARY TYPE
+            </label>
             <div className="relative">
               <select
                 value={beneficiaryType.id}
                 onChange={(e) => {
-                  const type = beneficiaryTypes.find(t => t.id === e.target.value);
+                  const type = beneficiaryTypes.find(
+                    (t) => t.id === e.target.value,
+                  );
                   if (type) setBeneficiaryType(type);
                 }}
                 className="w-full bg-zinc-800/80 border border-zinc-700 rounded-lg px-4 py-3 text-white appearance-none cursor-pointer focus:outline-none focus:border-purple-500 transition-colors"
@@ -96,8 +117,18 @@ export default function Transfer() {
                 ))}
               </select>
               <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                <svg className="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                <svg
+                  className="w-4 h-4 text-zinc-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
                 </svg>
               </div>
             </div>
@@ -132,7 +163,9 @@ export default function Transfer() {
 
         {/* TRANSFER AMOUNT */}
         <div className="mb-8">
-          <label className="block text-zinc-500 text-sm mb-2">TRANSFER AMOUNT</label>
+          <label className="block text-zinc-500 text-sm mb-2">
+            TRANSFER AMOUNT
+          </label>
           <div className="relative">
             <input
               type="text"
@@ -146,7 +179,8 @@ export default function Transfer() {
             </span>
           </div>
           <p className="text-zinc-600 text-xs mt-2">
-            Available: {selectedVault.balance.toLocaleString()} {selectedVault.currency}
+            Available: {selectedVault.balance.toLocaleString()}{" "}
+            {selectedVault.currency}
           </p>
         </div>
 

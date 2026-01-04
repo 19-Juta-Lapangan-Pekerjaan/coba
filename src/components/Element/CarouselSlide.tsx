@@ -48,7 +48,7 @@ export function CarouselSlide({
       <div
         className={cn(
           "relative z-10 h-full flex flex-col justify-end p-8 md:p-12",
-          contentClassName
+          contentClassName,
         )}
       >
         {children || (

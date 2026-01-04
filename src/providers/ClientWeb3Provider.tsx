@@ -9,7 +9,7 @@ const Web3Provider = dynamic(
   {
     ssr: false,
     loading: () => <div>Loading...</div>,
-  }
+  },
 );
 
 interface ClientWeb3ProviderProps {

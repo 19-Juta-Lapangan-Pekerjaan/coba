@@ -12,7 +12,7 @@ describe("Stealth Addresses", () => {
 
     const stealthAddr = StealthAddressGenerator.generateStealthAddress(
       bytesToHex(recipientViewPub),
-      bytesToHex(recipientSpendPub)
+      bytesToHex(recipientSpendPub),
     );
 
     expect(stealthAddr.address).toBeTruthy();
@@ -28,13 +28,13 @@ describe("Stealth Addresses", () => {
 
     const stealthAddr = StealthAddressGenerator.generateStealthAddress(
       bytesToHex(recipientViewPub),
-      bytesToHex(recipientSpendPub)
+      bytesToHex(recipientSpendPub),
     );
 
     const isMine = StealthAddressGenerator.checkOwnership(
       stealthAddr,
       bytesToHex(recipientViewPriv),
-      bytesToHex(recipientSpendPub)
+      bytesToHex(recipientSpendPub),
     );
 
     expect(isMine).toBe(true);
@@ -48,14 +48,14 @@ describe("Stealth Addresses", () => {
 
     const stealthAddr = StealthAddressGenerator.generateStealthAddress(
       bytesToHex(recipientViewPub),
-      bytesToHex(recipientSpendPub)
+      bytesToHex(recipientSpendPub),
     );
 
     const wrongViewPriv = secp256k1.utils.randomSecretKey();
     const isNotMine = StealthAddressGenerator.checkOwnership(
       stealthAddr,
       bytesToHex(wrongViewPriv),
-      bytesToHex(recipientSpendPub)
+      bytesToHex(recipientSpendPub),
     );
 
     expect(isNotMine).toBe(false);
@@ -69,13 +69,13 @@ describe("Stealth Addresses", () => {
 
     const stealthAddr = StealthAddressGenerator.generateStealthAddress(
       bytesToHex(recipientViewPub),
-      bytesToHex(recipientSpendPub)
+      bytesToHex(recipientSpendPub),
     );
 
     const stealthPrivKey = StealthAddressGenerator.computeStealthPrivateKey(
       stealthAddr.ephmeralPublicKey,
       bytesToHex(recipientViewPriv),
-      bytesToHex(recipientSpendPriv)
+      bytesToHex(recipientSpendPriv),
     );
 
     expect(stealthPrivKey).toBeTruthy();
@@ -93,14 +93,14 @@ describe("Stealth Addresses", () => {
     for (let i = 0; i < total; i++) {
       const testAddr = StealthAddressGenerator.generateStealthAddress(
         bytesToHex(recipientViewPub),
-        bytesToHex(recipientSpendPub)
+        bytesToHex(recipientSpendPub),
       );
       const wrongTag = { ...testAddr, viewTag: (testAddr.viewTag + 1) % 256 };
       if (
         StealthAddressGenerator.checkOwnership(
           wrongTag,
           bytesToHex(recipientViewPriv),
-          bytesToHex(recipientSpendPub)
+          bytesToHex(recipientSpendPub),
         )
       ) {
         matches++;
@@ -120,7 +120,7 @@ describe("Stealth Addresses", () => {
     for (let i = 0; i < 5; i++) {
       const addr = StealthAddressGenerator.generateStealthAddress(
         bytesToHex(recipientViewPub),
-        bytesToHex(recipientSpendPub)
+        bytesToHex(recipientSpendPub),
       );
       addresses.push(addr.address);
     }

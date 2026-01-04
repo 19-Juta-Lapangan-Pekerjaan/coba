@@ -6,8 +6,15 @@ import { Shield, Lock, Eye, ArrowLeftRight } from "lucide-react";
 
 // Mock token data
 const tokens = [
-  { id: "usdc", symbol: "USDC", name: "USD Coin", icon: "$", balance: 45000.00 },
-  { id: "ustb", symbol: "USTB", name: "US T-Bill Fund", icon: "U", balance: 12287.52, yield: 5.2 },
+  { id: "usdc", symbol: "USDC", name: "USD Coin", icon: "$", balance: 45000.0 },
+  {
+    id: "ustb",
+    symbol: "USTB",
+    name: "US T-Bill Fund",
+    icon: "U",
+    balance: 12287.52,
+    yield: 5.2,
+  },
   { id: "eth", symbol: "ETH", name: "Ethereum", icon: "E", balance: 2.5 },
 ];
 
@@ -59,14 +66,18 @@ export default function Trade() {
               {/* Sell Section */}
               <div className="bg-zinc-800/50 border border-zinc-700 rounded-xl p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-zinc-500 text-sm">SELL (SOURCE ASSET)</span>
+                  <span className="text-zinc-500 text-sm">
+                    SELL (SOURCE ASSET)
+                  </span>
                 </div>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-zinc-700 rounded-full flex items-center justify-center text-lg font-bold text-white">
                     {sellToken.icon}
                   </div>
                   <div>
-                    <p className="text-white font-semibold">{sellToken.symbol}</p>
+                    <p className="text-white font-semibold">
+                      {sellToken.symbol}
+                    </p>
                     <p className="text-zinc-500 text-xs">
                       Balance: {sellToken.balance.toLocaleString()}
                     </p>
@@ -94,7 +105,9 @@ export default function Trade() {
               {/* Buy Section */}
               <div className="bg-zinc-800/50 border border-zinc-700 rounded-xl p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-zinc-500 text-sm">BUY (TARGET ASSET)</span>
+                  <span className="text-zinc-500 text-sm">
+                    BUY (TARGET ASSET)
+                  </span>
                 </div>
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
@@ -102,7 +115,9 @@ export default function Trade() {
                       {buyToken.icon}
                     </div>
                     <div>
-                      <p className="text-white font-semibold">{buyToken.symbol}</p>
+                      <p className="text-white font-semibold">
+                        {buyToken.symbol}
+                      </p>
                     </div>
                   </div>
                   {buyToken.yield && (
@@ -128,7 +143,10 @@ export default function Trade() {
                 { id: "limit" as OrderType, label: "Limit (Shielded)" },
                 { id: "twap" as OrderType, label: "TWAP" },
               ].map((type) => (
-                <label key={type.id} className="flex items-center gap-2 cursor-pointer">
+                <label
+                  key={type.id}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
                   <input
                     type="radio"
                     name="orderType"
@@ -136,9 +154,11 @@ export default function Trade() {
                     onChange={() => setOrderType(type.id)}
                     className="w-4 h-4 text-cyan-500 bg-zinc-800 border-zinc-600 focus:ring-cyan-500 focus:ring-offset-zinc-900"
                   />
-                  <span className={`text-sm ${
-                    orderType === type.id ? "text-white" : "text-zinc-500"
-                  }`}>
+                  <span
+                    className={`text-sm ${
+                      orderType === type.id ? "text-white" : "text-zinc-500"
+                    }`}
+                  >
                     {type.label}
                   </span>
                 </label>
@@ -165,8 +185,10 @@ export default function Trade() {
         >
           {/* Order Book (Obfuscated) */}
           <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6">
-            <h3 className="text-zinc-400 text-sm mb-4">ORDER BOOK (OBFUSCATED)</h3>
-            
+            <h3 className="text-zinc-400 text-sm mb-4">
+              ORDER BOOK (OBFUSCATED)
+            </h3>
+
             {/* Blurred Order Book Visual */}
             <div className="relative h-32 mb-4 overflow-hidden rounded-lg">
               <div className="absolute inset-0 flex">
@@ -198,8 +220,8 @@ export default function Trade() {
             </button>
 
             <p className="text-xs text-zinc-600 mt-4">
-              Liquidity is aggregated from institutional dark pools. Execution is
-              guaranteed via the TEE enclave without pre-trade linkage.
+              Liquidity is aggregated from institutional dark pools. Execution
+              is guaranteed via the TEE enclave without pre-trade linkage.
             </p>
           </div>
 

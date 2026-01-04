@@ -54,7 +54,7 @@ export function NavBar({ items, className }: NavBarProps) {
     <div
       className={cn(
         "fixed sm:top-0 bottom-0 sm:bottom-auto pb-4 left-1/2 -translate-x-1/2 z-50 sm:pt-6",
-        className
+        className,
       )}
     >
       <div className="flex w-fit items-center gap-3 bg-background/5 border border-border backdrop-blur-lg py-1 px-1 rounded-full shadow-lg transition-all duration-300">
@@ -70,7 +70,7 @@ export function NavBar({ items, className }: NavBarProps) {
               className={cn(
                 "relative cursor-pointer text-sm font-semibold sm:px-6 sm:py-2 py-3 px-4 rounded-full transition-colors",
                 "text-white hover:text-white",
-                isActive && "bg-muted text-black hover:text-black/50"
+                isActive && "bg-muted text-black hover:text-black/50",
               )}
             >
               <span className="hidden md:inline">{item.name}</span>

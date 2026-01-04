@@ -34,7 +34,7 @@ describe("Key Derivation", () => {
     const deserialized = KeyDerivation.deserializeKeys(serialized);
     expect(deserialized.address).toBe(testKeys.address);
     expect(bytesToHex(deserialized.viewPrivateKey)).toBe(
-      bytesToHex(testKeys.viewPrivateKey)
+      bytesToHex(testKeys.viewPrivateKey),
     );
   });
 

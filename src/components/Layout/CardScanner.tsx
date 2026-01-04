@@ -73,7 +73,7 @@ class CardStreamController {
     this.cardLine.addEventListener(
       "touchstart",
       (e) => this.startDrag(e.touches[0]),
-      { passive: false }
+      { passive: false },
     );
     document.addEventListener("touchmove", (e) => this.onDrag(e.touches[0]), {
       passive: false,
@@ -258,11 +258,13 @@ class CardStreamController {
     for (let i = 0; i < 40; i++) {
       const n1 = randInt(1, 9);
       const n2 = randInt(10, 99);
-      library.push(`const transfer${i} = gelapPrivacy.darkTransfer(${n1} * ${n2});`);
+      library.push(
+        `const transfer${i} = gelapPrivacy.darkTransfer(${n1} * ${n2});`,
+      );
     }
     for (let i = 0; i < 20; i++) {
       library.push(
-        `if (privacy.level > ${1 + (i % 3)}) { gelapPrivacy.anonymity += 1; }`
+        `if (privacy.level > ${1 + (i % 3)}) { gelapPrivacy.anonymity += 1; }`,
       );
     }
 
@@ -302,10 +304,10 @@ class CardStreamController {
     normalCard.className = "card card-normal";
 
     const cardImages = [
-      "/logo/bitcoin.png",
-      "/logo/etherium.png",
-      "/logo/mantle.png",
-      "/logo/usdc.png",
+      "/logo/btc.webp",
+      "/logo/eth.webp",
+      "/logo/mantle.webp",
+      "/logo/usdc.webp",
     ];
 
     const cardImage = document.createElement("img");
@@ -372,7 +374,7 @@ class CardStreamController {
         const scannerIntersectLeft = Math.max(scannerLeft - cardLeft, 0);
         const scannerIntersectRight = Math.min(
           scannerRight - cardLeft,
-          cardWidth
+          cardWidth,
         );
 
         // Reversed: Image shows BEFORE scanner, code shows AFTER
@@ -464,7 +466,7 @@ class ParticleSystem {
       150,
       -150,
       1,
-      1000
+      1000,
     );
     this.camera.position.z = 100;
     this.renderer = new THREE.WebGLRenderer({
@@ -732,7 +734,7 @@ class ParticleScanner {
       0,
       half,
       half,
-      half
+      half,
     );
     gradient.addColorStop(0, "rgba(255, 255, 255, 1)");
     gradient.addColorStop(0.3, "rgba(173, 216, 230, 0.8)");
@@ -832,7 +834,7 @@ class ParticleScanner {
       particle.x - particle.radius,
       particle.y - particle.radius,
       particle.radius * 2,
-      particle.radius * 2
+      particle.radius * 2,
     );
   }
 
@@ -847,16 +849,16 @@ class ParticleScanner {
       0,
       drawY,
       0,
-      drawY + currentHeight
+      drawY + currentHeight,
     );
     verticalGradient.addColorStop(0, "rgba(255, 255, 255, 0)");
     verticalGradient.addColorStop(
       Math.min(0.5, currentFadeZone / currentHeight),
-      "rgba(255, 255, 255, 1)"
+      "rgba(255, 255, 255, 1)",
     );
     verticalGradient.addColorStop(
       Math.max(0.5, 1 - currentFadeZone / currentHeight),
-      "rgba(255, 255, 255, 1)"
+      "rgba(255, 255, 255, 1)",
     );
     verticalGradient.addColorStop(1, "rgba(255, 255, 255, 0)");
 
@@ -879,17 +881,17 @@ class ParticleScanner {
       this.lightBarX - lineWidth / 2,
       0,
       this.lightBarX + lineWidth / 2,
-      0
+      0,
     );
     coreGradient.addColorStop(0, "rgba(255, 255, 255, 0)");
     coreGradient.addColorStop(
       0.3,
-      `rgba(255, 255, 255, ${0.9 * glowIntensity})`
+      `rgba(255, 255, 255, ${0.9 * glowIntensity})`,
     );
     coreGradient.addColorStop(0.5, `rgba(255, 255, 255, ${1 * glowIntensity})`);
     coreGradient.addColorStop(
       0.7,
-      `rgba(255, 255, 255, ${0.9 * glowIntensity})`
+      `rgba(255, 255, 255, ${0.9 * glowIntensity})`,
     );
     coreGradient.addColorStop(1, "rgba(255, 255, 255, 0)");
 
@@ -899,19 +901,19 @@ class ParticleScanner {
       this.lightBarX - lineWidth / 2,
       drawY,
       lineWidth,
-      currentHeight
+      currentHeight,
     );
 
     const glow1Gradient = this.ctx.createLinearGradient(
       this.lightBarX - lineWidth * 2,
       0,
       this.lightBarX + lineWidth * 2,
-      0
+      0,
     );
     glow1Gradient.addColorStop(0, "rgba(135, 206, 250, 0)");
     glow1Gradient.addColorStop(
       0.5,
-      `rgba(173, 216, 230, ${0.8 * glowIntensity})`
+      `rgba(173, 216, 230, ${0.8 * glowIntensity})`,
     );
     glow1Gradient.addColorStop(1, "rgba(135, 206, 250, 0)");
 
@@ -921,19 +923,19 @@ class ParticleScanner {
       this.lightBarX - lineWidth * 2,
       drawY,
       lineWidth * 4,
-      currentHeight
+      currentHeight,
     );
 
     const glow2Gradient = this.ctx.createLinearGradient(
       this.lightBarX - lineWidth * 4,
       0,
       this.lightBarX + lineWidth * 4,
-      0
+      0,
     );
     glow2Gradient.addColorStop(0, "rgba(135, 206, 250, 0)");
     glow2Gradient.addColorStop(
       0.5,
-      `rgba(135, 206, 250, ${0.4 * glowIntensity})`
+      `rgba(135, 206, 250, ${0.4 * glowIntensity})`,
     );
     glow2Gradient.addColorStop(1, "rgba(135, 206, 250, 0)");
 
@@ -943,7 +945,7 @@ class ParticleScanner {
       this.lightBarX - lineWidth * 4,
       drawY,
       lineWidth * 8,
-      currentHeight
+      currentHeight,
     );
 
     if (this.scanningActive) {
@@ -951,7 +953,7 @@ class ParticleScanner {
         this.lightBarX - lineWidth * 8,
         0,
         this.lightBarX + lineWidth * 8,
-        0
+        0,
       );
       glow3Gradient.addColorStop(0, "rgba(135, 206, 250, 0)");
       glow3Gradient.addColorStop(0.5, `rgba(135, 206, 250, 0.2)`);
@@ -963,7 +965,7 @@ class ParticleScanner {
         this.lightBarX - lineWidth * 8,
         drawY,
         lineWidth * 16,
-        currentHeight
+        currentHeight,
       );
     }
 
@@ -1098,7 +1100,7 @@ export function CardScanner() {
     // Initialize all systems
     const controller = new CardStreamController(
       cardStreamRef.current!,
-      cardLineRef.current!
+      cardLineRef.current!,
     );
     const particleSystem = new ParticleSystem(particleCanvasRef.current!);
     const scanner = new ParticleScanner(scannerCanvasRef.current!);
@@ -1110,33 +1112,33 @@ export function CardScanner() {
     return () => {
       // Removing event listeners for CardStreamController
       controller.cardLine.removeEventListener("mousedown", (e) =>
-        controller.startDrag(e)
+        controller.startDrag(e),
       );
       document.removeEventListener("mousemove", (e) => controller.onDrag(e));
       document.removeEventListener("mouseup", () => controller.endDrag());
       // Removing event listeners for CardStreamController (touch events)
       controller.cardLine.removeEventListener("touchstart", (e) =>
-        controller.startDrag(e.touches[0])
+        controller.startDrag(e.touches[0]),
       );
       document.removeEventListener("touchmove", (e) =>
-        controller.onDrag(e.touches[0])
+        controller.onDrag(e.touches[0]),
       );
       document.removeEventListener("touchend", () => controller.endDrag());
       // Removing event listener for CardStreamController (wheel event)
       controller.cardLine.removeEventListener("wheel", (e) =>
-        controller.onWheel(e)
+        controller.onWheel(e),
       );
       // Removing event listener for CardStreamController (selectstart event)
       controller.cardLine.removeEventListener("selectstart", (e) =>
-        e.preventDefault()
+        e.preventDefault(),
       );
       // Removing event listener for CardStreamController (dragstart event)
       controller.cardLine.removeEventListener("dragstart", (e) =>
-        e.preventDefault()
+        e.preventDefault(),
       );
       // Removing event listener for CardStreamController (resize event)
       window.removeEventListener("resize", () =>
-        controller.calculateDimensions()
+        controller.calculateDimensions(),
       );
 
       particleSystem.destroy();

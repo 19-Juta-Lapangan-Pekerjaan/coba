@@ -10,7 +10,7 @@ interface TransferContextType {
 }
 
 const TransferContext = createContext<TransferContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export function TransferProvider({ children }: { children: ReactNode }) {

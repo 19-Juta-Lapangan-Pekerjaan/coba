@@ -9,7 +9,14 @@ import Image from "next/image";
 import Link from "next/link";
 import * as motion from "motion/react-client";
 import { AnimatePresence } from "framer-motion";
-import { ChevronDown, ArrowUpRight, ArrowDownLeft, Wallet, X, ExternalLink } from "lucide-react";
+import {
+  ChevronDown,
+  ArrowUpRight,
+  ArrowDownLeft,
+  Wallet,
+  X,
+  ExternalLink,
+} from "lucide-react";
 
 const tabs: { id: AppTab; label: string }[] = [
   { id: "dashboard", label: "DASHBOARD" },
@@ -37,7 +44,10 @@ export default function AppNavbar() {
   // Fetch balances from all supported chains
   const { data: mainnetBalance } = useBalance({ address, chainId: mainnet.id });
   const { data: baseBalance } = useBalance({ address, chainId: base.id });
-  const { data: arbitrumBalance } = useBalance({ address, chainId: arbitrum.id });
+  const { data: arbitrumBalance } = useBalance({
+    address,
+    chainId: arbitrum.id,
+  });
   const { data: mantleBalance } = useBalance({ address, chainId: mantle.id });
   const { data: sepoliaBalance } = useBalance({ address, chainId: sepolia.id });
 
@@ -48,7 +58,7 @@ export default function AppNavbar() {
     { ...supportedChains[2], balance: arbitrumBalance },
     { ...supportedChains[3], balance: mantleBalance },
     { ...supportedChains[4], balance: sepoliaBalance },
-  ].filter(b => b.balance && parseFloat(b.balance.formatted) > 0);
+  ].filter((b) => b.balance && parseFloat(b.balance.formatted) > 0);
 
   // Calculate total USD value
   const totalUsd = allBalances.reduce((sum, b) => {
@@ -60,7 +70,10 @@ export default function AppNavbar() {
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setWalletDropdownOpen(false);
       }
     }
@@ -168,14 +181,18 @@ export default function AppNavbar() {
                               {chain.name}
                             </span>
                             <span className="text-zinc-600">|</span>
-                            <span className="text-xs text-zinc-400">CONNECTED</span>
+                            <span className="text-xs text-zinc-400">
+                              CONNECTED
+                            </span>
                             <ChevronDown className="w-3 h-3 text-zinc-500" />
                           </motion.button>
 
                           {/* Wallet Button - Opens Custom Dropdown */}
                           <div className="relative" ref={dropdownRef}>
                             <motion.button
-                              onClick={() => setWalletDropdownOpen(!walletDropdownOpen)}
+                              onClick={() =>
+                                setWalletDropdownOpen(!walletDropdownOpen)
+                              }
                               whileHover={{ scale: 1.02 }}
                               whileTap={{ scale: 0.98 }}
                               className="flex items-center gap-2 px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg hover:bg-zinc-800 transition-all cursor-pointer"
@@ -186,7 +203,9 @@ export default function AppNavbar() {
                               <span className="text-xs text-zinc-500">
                                 {account.displayName}
                               </span>
-                              <ChevronDown className={`w-3 h-3 text-zinc-500 transition-transform ${walletDropdownOpen ? "rotate-180" : ""}`} />
+                              <ChevronDown
+                                className={`w-3 h-3 text-zinc-500 transition-transform ${walletDropdownOpen ? "rotate-180" : ""}`}
+                              />
                             </motion.button>
 
                             {/* Wallet Dropdown */}
@@ -203,11 +222,15 @@ export default function AppNavbar() {
                                   <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800">
                                     <div className="flex items-center gap-2">
                                       <Wallet className="w-4 h-4 text-purple-400" />
-                                      <span className="text-white font-medium text-sm">Accounts</span>
+                                      <span className="text-white font-medium text-sm">
+                                        Accounts
+                                      </span>
                                       <ChevronDown className="w-3 h-3 text-zinc-500" />
                                     </div>
-                                    <button 
-                                      onClick={() => setWalletDropdownOpen(false)}
+                                    <button
+                                      onClick={() =>
+                                        setWalletDropdownOpen(false)
+                                      }
                                       className="text-zinc-500 hover:text-white transition-colors"
                                     >
                                       <X className="w-4 h-4" />
@@ -216,13 +239,19 @@ export default function AppNavbar() {
 
                                   {/* Tabs */}
                                   <div className="flex gap-4 px-4 py-2 border-b border-zinc-800">
-                                    <button className="text-purple-400 text-sm font-medium">Assets</button>
-                                    <button className="text-zinc-500 text-sm hover:text-zinc-300 transition-colors">Transactions</button>
+                                    <button className="text-purple-400 text-sm font-medium">
+                                      Assets
+                                    </button>
+                                    <button className="text-zinc-500 text-sm hover:text-zinc-300 transition-colors">
+                                      Transactions
+                                    </button>
                                   </div>
 
                                   {/* Wallet Card */}
                                   <div className="mx-4 my-3 p-4 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-xl border border-zinc-700">
-                                    <p className="text-zinc-400 text-xs mb-1">My Wallet</p>
+                                    <p className="text-zinc-400 text-xs mb-1">
+                                      My Wallet
+                                    </p>
                                     <p className="text-2xl font-bold text-white">
                                       {formatUsd(totalUsd)}
                                     </p>
@@ -232,31 +261,52 @@ export default function AppNavbar() {
                                   <div className="px-4 pb-3 space-y-3 max-h-48 overflow-y-auto">
                                     {allBalances.length > 0 ? (
                                       allBalances.map((item) => (
-                                        <div key={item.chain.id} className="flex items-center justify-between">
+                                        <div
+                                          key={item.chain.id}
+                                          className="flex items-center justify-between"
+                                        >
                                           <div className="flex items-center gap-3">
-                                            <div className={`w-8 h-8 ${item.color} rounded-full flex items-center justify-center`}>
-                                              <span className="text-white text-xs font-bold">Ξ</span>
+                                            <div
+                                              className={`w-8 h-8 ${item.color} rounded-full flex items-center justify-center`}
+                                            >
+                                              <span className="text-white text-xs font-bold">
+                                                Ξ
+                                              </span>
                                             </div>
                                             <div>
                                               <p className="text-white text-sm font-medium">
-                                                ETH <span className="text-zinc-500">Ether</span>
+                                                ETH{" "}
+                                                <span className="text-zinc-500">
+                                                  Ether
+                                                </span>
                                               </p>
-                                              <p className="text-purple-400 text-xs uppercase">{item.name}</p>
+                                              <p className="text-purple-400 text-xs uppercase">
+                                                {item.name}
+                                              </p>
                                             </div>
                                           </div>
                                           <div className="text-right">
                                             <p className="text-white text-sm font-medium">
-                                              {formatBalance(item.balance?.formatted)}
+                                              {formatBalance(
+                                                item.balance?.formatted,
+                                              )}
                                             </p>
                                             <p className="text-zinc-500 text-xs">
-                                              {formatUsd(parseFloat(item.balance?.formatted || "0") * 3500)}
+                                              {formatUsd(
+                                                parseFloat(
+                                                  item.balance?.formatted ||
+                                                    "0",
+                                                ) * 3500,
+                                              )}
                                             </p>
                                           </div>
                                         </div>
                                       ))
                                     ) : (
                                       <div className="text-center py-4">
-                                        <p className="text-zinc-500 text-sm">No assets found</p>
+                                        <p className="text-zinc-500 text-sm">
+                                          No assets found
+                                        </p>
                                       </div>
                                     )}
                                   </div>
@@ -280,9 +330,10 @@ export default function AppNavbar() {
                                   {/* Footer */}
                                   <div className="px-4 py-3 border-t border-zinc-800 flex items-center justify-between">
                                     <button className="text-purple-400 text-xs font-medium flex items-center gap-1 hover:text-purple-300 transition-colors">
-                                      Bridge Crypto? <ExternalLink className="w-3 h-3" />
+                                      Bridge Crypto?{" "}
+                                      <ExternalLink className="w-3 h-3" />
                                     </button>
-                                    <button 
+                                    <button
                                       onClick={() => {
                                         disconnect();
                                         setWalletDropdownOpen(false);
@@ -309,4 +360,3 @@ export default function AppNavbar() {
     </nav>
   );
 }
-

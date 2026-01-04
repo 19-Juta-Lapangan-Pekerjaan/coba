@@ -60,7 +60,9 @@ export default function Compliance() {
         >
           <div className="flex items-center gap-2 mb-2">
             <Key className="w-4 h-4 text-green-400" />
-            <h2 className="text-green-400 font-semibold">Viewing Keys Management</h2>
+            <h2 className="text-green-400 font-semibold">
+              Viewing Keys Management
+            </h2>
           </div>
           <p className="text-zinc-500 text-sm mb-6">
             Manage keys that allow auditors or regulators to decrypt specific
@@ -77,10 +79,14 @@ export default function Compliance() {
                 className="bg-zinc-800/50 border border-zinc-700 rounded-lg p-4 flex items-center justify-between"
               >
                 <div>
-                  <p className="text-cyan-400 font-medium text-sm">{key.name}</p>
+                  <p className="text-cyan-400 font-medium text-sm">
+                    {key.name}
+                  </p>
                   <p className="text-zinc-500 text-xs">{key.scope}</p>
                 </div>
-                <span className={`px-2 py-1 ${key.statusColor} text-black text-xs font-medium rounded`}>
+                <span
+                  className={`px-2 py-1 ${key.statusColor} text-black text-xs font-medium rounded`}
+                >
                   {key.status}
                 </span>
               </motion.div>
@@ -129,7 +135,9 @@ export default function Compliance() {
 
             {/* Travel Rule Compliance */}
             <div className="flex items-center justify-between">
-              <span className="text-zinc-500 text-sm">Travel Rule Compliance</span>
+              <span className="text-zinc-500 text-sm">
+                Travel Rule Compliance
+              </span>
               <span className="text-cyan-400 text-sm font-medium">
                 {regulatoryFlags.travelRuleCompliance}
               </span>

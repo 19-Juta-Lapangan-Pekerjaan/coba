@@ -24,13 +24,13 @@ describe("Integration Test: Complete Private Payment Flow", () => {
 
     const bobStealthAddr = StealthAddressGenerator.generateStealthAddress(
       bytesToHex(bobViewPub),
-      bytesToHex(bobSpendPub)
+      bytesToHex(bobSpendPub),
     );
     expect(bobStealthAddr.address).toBeTruthy();
 
     const aliceChangeAddr = StealthAddressGenerator.generateStealthAddress(
       bytesToHex(aliceViewPub),
-      bytesToHex(aliceSpendPub)
+      bytesToHex(aliceSpendPub),
     );
     expect(aliceChangeAddr.address).toBeTruthy();
 
@@ -44,28 +44,28 @@ describe("Integration Test: Complete Private Payment Flow", () => {
 
     const txBalanced = CommitmentGenerator.verifyBalance(
       transaction.inputs.map((i) => i.commitment),
-      transaction.outputs.map((o) => o.commitment)
+      transaction.outputs.map((o) => o.commitment),
     );
     expect(txBalanced).toBe(true);
 
     const bobCanSpend = StealthAddressGenerator.checkOwnership(
       bobStealthAddr,
       bytesToHex(bobViewPriv),
-      bytesToHex(bobSpendPub)
+      bytesToHex(bobSpendPub),
     );
     expect(bobCanSpend).toBe(true);
 
     const bobStealthPrivKey = StealthAddressGenerator.computeStealthPrivateKey(
       bobStealthAddr.ephmeralPublicKey,
       bytesToHex(bobViewPriv),
-      bytesToHex(bobSpendPriv)
+      bytesToHex(bobSpendPriv),
     );
     expect(bobStealthPrivKey).toBeTruthy();
 
     const aliceFoundChange = StealthAddressGenerator.checkOwnership(
       aliceChangeAddr,
       bytesToHex(aliceViewPriv),
-      bytesToHex(aliceSpendPub)
+      bytesToHex(aliceSpendPub),
     );
     expect(aliceFoundChange).toBe(true);
 
@@ -76,11 +76,11 @@ describe("Integration Test: Complete Private Payment Flow", () => {
 
     const carolStealthAddr = StealthAddressGenerator.generateStealthAddress(
       bytesToHex(carolViewPub),
-      bytesToHex(carolSpendPub)
+      bytesToHex(carolSpendPub),
     );
     const bobChangeAddr = StealthAddressGenerator.generateStealthAddress(
       bytesToHex(bobViewPub),
-      bytesToHex(bobSpendPub)
+      bytesToHex(bobSpendPub),
     );
 
     const bobTransaction = CommitmentGenerator.createBalancedCommitments(60n, [
@@ -92,7 +92,7 @@ describe("Integration Test: Complete Private Payment Flow", () => {
 
     const bobTxBalanced = CommitmentGenerator.verifyBalance(
       bobTransaction.inputs.map((i) => i.commitment),
-      bobTransaction.outputs.map((o) => o.commitment)
+      bobTransaction.outputs.map((o) => o.commitment),
     );
     expect(bobTxBalanced).toBe(true);
   });

@@ -54,7 +54,7 @@ export function TransferModal() {
   const handleHalf = () => {
     if (!balanceData) return;
     const balance = parseFloat(
-      formatUnits(balanceData.value, balanceData.decimals)
+      formatUnits(balanceData.value, balanceData.decimals),
     );
     setAmount((balance / 2).toFixed(6));
   };
@@ -62,7 +62,7 @@ export function TransferModal() {
   const handleMax = () => {
     if (!balanceData) return;
     const balance = parseFloat(
-      formatUnits(balanceData.value, balanceData.decimals)
+      formatUnits(balanceData.value, balanceData.decimals),
     );
     // Estimate gas fee (rough estimate: 0.001 ETH for simple transfer)
     const estimatedGasFee = 0.001;
@@ -285,8 +285,8 @@ export function TransferModal() {
                                     ? ` (${parseFloat(
                                         formatUnits(
                                           balanceData.value,
-                                          balanceData.decimals
-                                        )
+                                          balanceData.decimals,
+                                        ),
                                       ).toFixed(4)} ${balanceData.symbol})`
                                     : ""}
                                 </button>

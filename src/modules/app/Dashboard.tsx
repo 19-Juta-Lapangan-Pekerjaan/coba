@@ -4,15 +4,15 @@ import { useApp } from "@/src/contexts/AppContext";
 import { useAccount, useBalance } from "wagmi";
 import { useEffect } from "react";
 import * as motion from "motion/react-client";
-import { 
-  Check, 
-  Loader2, 
-  Circle, 
-  Shield, 
-  FileCheck, 
+import {
+  Check,
+  Loader2,
+  Circle,
+  Shield,
+  FileCheck,
   ArrowUpRight,
   ArrowDownRight,
-  RefreshCw
+  RefreshCw,
 } from "lucide-react";
 
 // Mock data for treasury rates (would come from Chronicle/Chainlink in production)
@@ -89,7 +89,8 @@ const executionLog = [
 ];
 
 function WalletGenerationStepper() {
-  const { walletGenerationSteps, isGeneratingWallet, privacyWalletGenerated } = useApp();
+  const { walletGenerationSteps, isGeneratingWallet, privacyWalletGenerated } =
+    useApp();
 
   return (
     <motion.div
@@ -119,13 +120,15 @@ function WalletGenerationStepper() {
               )}
             </div>
             <div className="flex-1">
-              <p className={`font-medium ${
-                step.status === "complete" 
-                  ? "text-green-400" 
-                  : step.status === "loading"
-                  ? "text-white"
-                  : "text-zinc-500"
-              }`}>
+              <p
+                className={`font-medium ${
+                  step.status === "complete"
+                    ? "text-green-400"
+                    : step.status === "loading"
+                      ? "text-white"
+                      : "text-zinc-500"
+                }`}
+              >
                 {step.title}
               </p>
               <p className="text-sm text-zinc-500 mt-0.5">{step.description}</p>
@@ -151,18 +154,20 @@ function WalletGenerationStepper() {
 export default function Dashboard() {
   const { isConnected, address } = useAccount();
   const { data: balance } = useBalance({ address });
-  const { 
-    isGeneratingWallet, 
-    privacyWalletGenerated, 
-    startWalletGeneration 
-  } = useApp();
+  const { isGeneratingWallet, privacyWalletGenerated, startWalletGeneration } =
+    useApp();
 
   // Start wallet generation when connected
   useEffect(() => {
     if (isConnected && !privacyWalletGenerated && !isGeneratingWallet) {
       startWalletGeneration();
     }
-  }, [isConnected, privacyWalletGenerated, isGeneratingWallet, startWalletGeneration]);
+  }, [
+    isConnected,
+    privacyWalletGenerated,
+    isGeneratingWallet,
+    startWalletGeneration,
+  ]);
 
   // Show wallet generation stepper if generating
   if (isConnected && (isGeneratingWallet || !privacyWalletGenerated)) {
@@ -267,7 +272,9 @@ export default function Dashboard() {
             </div>
             <div className="flex justify-between">
               <span className="text-zinc-500">Private Credit</span>
-              <span className="text-cyan-400">{treasuryRates.privateCredit}%</span>
+              <span className="text-cyan-400">
+                {treasuryRates.privateCredit}%
+              </span>
             </div>
           </div>
           <p className="text-xs text-zinc-600 mt-4">
@@ -312,22 +319,36 @@ export default function Dashboard() {
                           {holding.instrument.charAt(0)}
                         </div>
                         <div>
-                          <p className="text-white font-medium">{holding.instrument}</p>
-                          <p className="text-zinc-500 text-xs">{holding.description}</p>
+                          <p className="text-white font-medium">
+                            {holding.instrument}
+                          </p>
+                          <p className="text-zinc-500 text-xs">
+                            {holding.description}
+                          </p>
                         </div>
                       </div>
                     </td>
                     <td className="py-4">
-                      <span className={`px-2 py-1 ${holding.typeColor} text-white text-xs rounded`}>
+                      <span
+                        className={`px-2 py-1 ${holding.typeColor} text-white text-xs rounded`}
+                      >
                         {holding.type}
                       </span>
                     </td>
-                    <td className="py-4 text-right text-cyan-400">{holding.yieldApy}%</td>
-                    <td className="py-4 text-right text-white">{holding.position.toLocaleString()}</td>
                     <td className="py-4 text-right text-cyan-400">
-                      {holding.valueUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                      {holding.yieldApy}%
                     </td>
-                    <td className="py-4 text-right text-white">{holding.allocPercent}%</td>
+                    <td className="py-4 text-right text-white">
+                      {holding.position.toLocaleString()}
+                    </td>
+                    <td className="py-4 text-right text-cyan-400">
+                      {holding.valueUsd.toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </td>
+                    <td className="py-4 text-right text-white">
+                      {holding.allocPercent}%
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -348,31 +369,42 @@ export default function Dashboard() {
           </div>
           <div className="space-y-4">
             {executionLog.map((log) => (
-              <div key={log.id} className="flex items-start justify-between pb-4 border-b border-zinc-800/50 last:border-0">
+              <div
+                key={log.id}
+                className="flex items-start justify-between pb-4 border-b border-zinc-800/50 last:border-0"
+              >
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className={`px-2 py-0.5 text-xs rounded ${
-                      log.type === "EXECUTION" 
-                        ? "bg-purple-500/20 text-purple-400"
-                        : log.type === "DEPOSIT"
-                        ? "bg-green-500/20 text-green-400"
-                        : "bg-blue-500/20 text-blue-400"
-                    }`}>
+                    <span
+                      className={`px-2 py-0.5 text-xs rounded ${
+                        log.type === "EXECUTION"
+                          ? "bg-purple-500/20 text-purple-400"
+                          : log.type === "DEPOSIT"
+                            ? "bg-green-500/20 text-green-400"
+                            : "bg-blue-500/20 text-blue-400"
+                      }`}
+                    >
                       {log.type}
                     </span>
-                    <span className="text-zinc-600 text-xs">{log.timestamp}</span>
+                    <span className="text-zinc-600 text-xs">
+                      {log.timestamp}
+                    </span>
                   </div>
                   <p className="text-white text-sm">{log.title}</p>
-                  <p className="text-zinc-500 text-xs">CP: {log.counterparty}</p>
+                  <p className="text-zinc-500 text-xs">
+                    CP: {log.counterparty}
+                  </p>
                 </div>
                 <div className="text-right">
-                  <p className={`text-sm ${
-                    log.amount.startsWith("+") 
-                      ? "text-green-400" 
-                      : log.amount.startsWith("-")
-                      ? "text-red-400"
-                      : "text-white"
-                  }`}>
+                  <p
+                    className={`text-sm ${
+                      log.amount.startsWith("+")
+                        ? "text-green-400"
+                        : log.amount.startsWith("-")
+                          ? "text-red-400"
+                          : "text-white"
+                    }`}
+                  >
                     {log.amount}
                   </p>
                 </div>

@@ -14,7 +14,7 @@ describe("Pedersen Commitments", () => {
     const isValid = CommitmentGenerator.verifyCommitment(
       commitment.commitment,
       commitment.amount,
-      commitment.blinding
+      commitment.blinding,
     );
     expect(isValid).toBe(true);
   });
@@ -22,7 +22,7 @@ describe("Pedersen Commitments", () => {
   test("balanced commitments", () => {
     const { inputs, outputs } = CommitmentGenerator.createBalancedCommitments(
       100n,
-      [60n, 40n]
+      [60n, 40n],
     );
     expect(inputs[0].commitment).toBeTruthy();
     expect(outputs[0].commitment).toBeTruthy();
@@ -32,11 +32,11 @@ describe("Pedersen Commitments", () => {
   test("verify balance", () => {
     const { inputs, outputs } = CommitmentGenerator.createBalancedCommitments(
       100n,
-      [60n, 40n]
+      [60n, 40n],
     );
     const balanced = CommitmentGenerator.verifyBalance(
       inputs.map((i) => i.commitment),
-      outputs.map((o) => o.commitment)
+      outputs.map((o) => o.commitment),
     );
     expect(balanced).toBe(true);
   });
@@ -50,7 +50,7 @@ describe("Pedersen Commitments", () => {
     ]);
     const invalidBalanced = CommitmentGenerator.verifyBalance(
       invalid.inputs.map((i) => i.commitment),
-      [validOutputs[0].commitment, validOutputs[1].commitment]
+      [validOutputs[0].commitment, validOutputs[1].commitment],
     );
     expect(invalidBalanced).toBe(false);
   });

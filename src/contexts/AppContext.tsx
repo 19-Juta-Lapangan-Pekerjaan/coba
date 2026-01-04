@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useCallback,
+} from "react";
 
 export type AppTab = "dashboard" | "trade" | "transfer" | "compliance";
 
@@ -15,11 +21,11 @@ interface AppContextType {
   // Authentication
   isAuthenticated: boolean;
   authenticate: () => void;
-  
+
   // Navigation
   activeTab: AppTab;
   setActiveTab: (tab: AppTab) => void;
-  
+
   // Privacy Wallet Generation
   isGeneratingWallet: boolean;
   privacyWalletGenerated: boolean;
@@ -32,7 +38,8 @@ const initialWalletSteps: WalletGenerationStep[] = [
   {
     id: 1,
     title: "Initializing TEE Environment",
-    description: "Setting up Trusted Execution Environment for secure key generation",
+    description:
+      "Setting up Trusted Execution Environment for secure key generation",
     status: "pending",
   },
   {
@@ -62,7 +69,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [activeTab, setActiveTab] = useState<AppTab>("dashboard");
   const [isGeneratingWallet, setIsGeneratingWallet] = useState(false);
   const [privacyWalletGenerated, setPrivacyWalletGenerated] = useState(false);
-  const [walletGenerationSteps, setWalletGenerationSteps] = useState<WalletGenerationStep[]>(initialWalletSteps);
+  const [walletGenerationSteps, setWalletGenerationSteps] =
+    useState<WalletGenerationStep[]>(initialWalletSteps);
 
   const authenticate = useCallback(() => {
     setIsAuthenticated(true);
@@ -70,29 +78,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const startWalletGeneration = useCallback(async () => {
     if (isGeneratingWallet || privacyWalletGenerated) return;
-    
+
     setIsGeneratingWallet(true);
     setWalletGenerationSteps(initialWalletSteps);
 
     // Simulate step-by-step wallet generation
     for (let i = 0; i < initialWalletSteps.length; i++) {
       // Set current step to loading
-      setWalletGenerationSteps(prev => 
+      setWalletGenerationSteps((prev) =>
         prev.map((step, idx) => ({
           ...step,
-          status: idx === i ? "loading" : idx < i ? "complete" : "pending"
-        }))
+          status: idx === i ? "loading" : idx < i ? "complete" : "pending",
+        })),
       );
 
       // Simulate processing time (800-1500ms per step)
-      await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 700));
+      await new Promise((resolve) =>
+        setTimeout(resolve, 800 + Math.random() * 700),
+      );
 
       // Mark current step as complete
-      setWalletGenerationSteps(prev =>
+      setWalletGenerationSteps((prev) =>
         prev.map((step, idx) => ({
           ...step,
-          status: idx <= i ? "complete" : "pending"
-        }))
+          status: idx <= i ? "complete" : "pending",
+        })),
       );
     }
 

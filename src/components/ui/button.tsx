@@ -29,10 +29,13 @@ const buttonVariants = cva(
         "icon-lg": "size-12",
       },
       color: {
-        default: "border-border text-white hover:border-stormy_teal-500 hover:bg-stormy_teal-100 hover:text-stormy_teal-500",
+        default:
+          "border-border text-white hover:border-stormy_teal-500 hover:bg-stormy_teal-100 hover:text-stormy_teal-500",
         teal: "border-stormy_teal-500 bg-stormy_teal-500 text-white hover:bg-stormy_teal-400 hover:border-stormy_teal-400",
-        violet: "border-midnight_violet-500 bg-midnight_violet-500 text-white hover:bg-midnight_violet-400 hover:border-midnight_violet-400",
-        purple: "border-deep_purple-500 bg-deep_purple-500 text-white hover:bg-deep_purple-400 hover:border-deep_purple-400",
+        violet:
+          "border-midnight_violet-500 bg-midnight_violet-500 text-white hover:bg-midnight_violet-400 hover:border-midnight_violet-400",
+        purple:
+          "border-deep_purple-500 bg-deep_purple-500 text-white hover:bg-deep_purple-400 hover:border-deep_purple-400",
       },
     },
     defaultVariants: {
@@ -40,7 +43,7 @@ const buttonVariants = cva(
       size: "default",
       color: "default",
     },
-  }
+  },
 );
 
 function Button({

@@ -11,7 +11,7 @@ import { StealthAddress } from "./types";
 export class StealthAddressGenerator {
   static generateStealthAddress(
     recepientViewPublicKey: Hex,
-    recipientSpendPublicKey: Hex
+    recipientSpendPublicKey: Hex,
   ): StealthAddress {
     const ephemeralPrivateKey = secp256k1.utils.randomSecretKey();
 
@@ -20,13 +20,13 @@ export class StealthAddressGenerator {
     const viewPubBytes = hexToBytes(recepientViewPublicKey);
     const sharedSecret = secp256k1.getSharedSecret(
       ephemeralPrivateKey,
-      viewPubBytes
+      viewPubBytes,
     );
 
     const spendPubBytes = hexToBytes(recipientSpendPublicKey);
     const stealthPublicKey = this.deriveStealthPublicKey(
       sharedSecret,
-      spendPubBytes
+      spendPubBytes,
     );
 
     const address = this.publicKeyToAddress(stealthPublicKey);
@@ -43,7 +43,7 @@ export class StealthAddressGenerator {
   static checkOwnership(
     stealthAddress: StealthAddress,
     viewPrivateKey: Hex,
-    spendPublicKey: Hex
+    spendPublicKey: Hex,
   ): boolean {
     try {
       const ephemeralPubBytes = hexToBytes(stealthAddress.ephmeralPublicKey);
@@ -51,7 +51,7 @@ export class StealthAddressGenerator {
 
       const sharedSecret = secp256k1.getSharedSecret(
         viewPrivBytes,
-        ephemeralPubBytes
+        ephemeralPubBytes,
       );
 
       const expectedTag = this.computeViewTag(sharedSecret);
@@ -62,7 +62,7 @@ export class StealthAddressGenerator {
       const spendPubBytes = hexToBytes(spendPublicKey);
       const expectedStealthPub = this.deriveStealthPublicKey(
         sharedSecret,
-        spendPubBytes
+        spendPubBytes,
       );
       const expectedAddress = this.publicKeyToAddress(expectedStealthPub);
 
@@ -78,7 +78,7 @@ export class StealthAddressGenerator {
   static computeStealthPrivateKey(
     ephemeralPublicKey: Hex,
     viewPrivateKey: Hex,
-    spendPrivateKey: Hex
+    spendPrivateKey: Hex,
   ): Hex {
     const ephmeralPubBytes = hexToBytes(ephemeralPublicKey);
     const viewPrivBytes = hexToBytes(viewPrivateKey);
@@ -86,7 +86,7 @@ export class StealthAddressGenerator {
 
     const sharedSecret = secp256k1.getSharedSecret(
       viewPrivBytes,
-      ephmeralPubBytes
+      ephmeralPubBytes,
     );
 
     const secretHash = keccak256(bytesToHex(sharedSecret));
@@ -104,15 +104,19 @@ export class StealthAddressGenerator {
 
   private static deriveStealthPublicKey(
     sharedSecret: Uint8Array,
-    spendPublicKey: Uint8Array
+    spendPublicKey: Uint8Array,
   ): Uint8Array {
     const secretHash = keccak256(bytesToHex(sharedSecret));
     const secretHashBytes = hexToBytes(secretHash);
 
     const derivePubKey = secp256k1.getPublicKey(secretHashBytes);
 
-    const derivedPoint = secp256k1.Point.fromHex(bytesToHex(derivePubKey).slice(2));
-    const spendPoint = secp256k1.Point.fromHex(bytesToHex(spendPublicKey).slice(2));
+    const derivedPoint = secp256k1.Point.fromHex(
+      bytesToHex(derivePubKey).slice(2),
+    );
+    const spendPoint = secp256k1.Point.fromHex(
+      bytesToHex(spendPublicKey).slice(2),
+    );
 
     const stealthPoint = derivedPoint.add(spendPoint);
 

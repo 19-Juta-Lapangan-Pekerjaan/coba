@@ -60,7 +60,7 @@ export function SlidingCarousel({
         setIsTransitioning(false);
       }, transitionDuration);
     },
-    [isTransitioning, slides.length, transitionDuration]
+    [isTransitioning, slides.length, transitionDuration],
   );
 
   const nextSlide = useCallback(() => {
@@ -192,7 +192,7 @@ export function SlidingCarousel({
         className={cn(
           "flex transition-transform",
           isDragging ? "cursor-grabbing" : "cursor-grab",
-          !isDragging && "ease-out"
+          !isDragging && "ease-out",
         )}
         style={{
           transform: `translateX(calc(-${
@@ -235,7 +235,7 @@ export function SlidingCarousel({
               "transition-all duration-200",
               "hover:scale-110 active:scale-95",
               "disabled:opacity-50 disabled:cursor-not-allowed",
-              "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
             )}
             aria-label="Previous slide"
           >
@@ -252,7 +252,7 @@ export function SlidingCarousel({
               "transition-all duration-200",
               "hover:scale-110 active:scale-95",
               "disabled:opacity-50 disabled:cursor-not-allowed",
-              "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
             )}
             aria-label="Next slide"
           >
@@ -274,7 +274,7 @@ export function SlidingCarousel({
                 "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
                 currentIndex === index
                   ? "bg-white w-8"
-                  : "bg-white/50 hover:bg-white/75"
+                  : "bg-white/50 hover:bg-white/75",
               )}
               aria-label={`Go to slide ${index + 1}`}
             />

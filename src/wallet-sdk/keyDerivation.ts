@@ -17,7 +17,7 @@ const SIGNING_MESSAGES = {
 
 export class KeyDerivation {
   static async generateKeysFromWallet(
-    walletClient: WalletClient
+    walletClient: WalletClient,
   ): Promise<WalletKeys> {
     const [address] = await walletClient.getAddresses();
     if (!address) throw new Error("No address found");
@@ -40,7 +40,7 @@ export class KeyDerivation {
     });
     const spendKeyPair = this.deriveKeyPairFromSignature(
       spendSignature,
-      "spend"
+      "spend",
     );
 
     return {
@@ -54,7 +54,7 @@ export class KeyDerivation {
 
   private static deriveKeyPairFromSignature(
     signature: Hex,
-    purpose: "view" | "spend"
+    purpose: "view" | "spend",
   ): KeyPair {
     const sigBytes = hexToBytes(signature);
 

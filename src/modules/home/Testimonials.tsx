@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
-import { cn } from "@/src/lib/utils"
-import { Marquee } from "@/src/components/ui/marquee"
+import { cn } from "@/src/lib/utils";
+import { Marquee } from "@/src/components/ui/marquee";
 
 const reviews = [
   {
@@ -39,12 +39,12 @@ const reviews = [
     body: "Dark transfers are seamless. No more wallet tracking worries.",
     img: "https://avatar.vercel.sh/lisa",
   },
-]
+];
 
-const firstRow = reviews.slice(0, 3)
-const secondRow = reviews.slice(3, 6)
-const thirdRow = reviews.slice(0, 3)
-const fourthRow = reviews.slice(3, 6)
+const firstRow = reviews.slice(0, 3);
+const secondRow = reviews.slice(3, 6);
+const thirdRow = reviews.slice(0, 3);
+const fourthRow = reviews.slice(3, 6);
 
 const ReviewCard = ({
   img,
@@ -52,17 +52,17 @@ const ReviewCard = ({
   username,
   body,
 }: {
-  img: string
-  name: string
-  username: string
-  body: string
+  img: string;
+  name: string;
+  username: string;
+  body: string;
 }) => {
   return (
     <figure
       className={cn(
         "relative h-full w-44 cursor-pointer overflow-hidden rounded-xl border p-4",
         "border-stormy_teal-500/20 bg-black/40 backdrop-blur-sm",
-        "hover:bg-stormy_teal-500/10 hover:border-stormy_teal-500/40 transition-all"
+        "hover:bg-stormy_teal-500/10 hover:border-stormy_teal-500/40 transition-all",
       )}
     >
       <div className="flex flex-row items-center gap-2">
@@ -76,8 +76,8 @@ const ReviewCard = ({
       </div>
       <blockquote className="mt-2 text-sm text-white/70">{body}</blockquote>
     </figure>
-  )
-}
+  );
+};
 
 export default function Testimonials() {
   return (
@@ -127,5 +127,5 @@ export default function Testimonials() {
       <div className="pointer-events-none absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-black to-transparent"></div>
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-black to-transparent"></div>
     </section>
-  )
+  );
 }

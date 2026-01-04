@@ -26,7 +26,7 @@ export class CommitmentGenerator {
   static verifyCommitment(
     commitment: Hex,
     amount: bigint,
-    blinding: Hex
+    blinding: Hex,
   ): boolean {
     const recomputed = this.recomputeCommitment(amount, blinding);
     return commitment.toLowerCase() === recomputed.toLowerCase();
@@ -34,7 +34,7 @@ export class CommitmentGenerator {
 
   private static computeCommitment(
     amount: bigint,
-    blinding: Uint8Array
+    blinding: Uint8Array,
   ): Uint8Array {
     const G = secp256k1.Point.BASE;
     const H = this.getHGenerator();
@@ -76,7 +76,7 @@ export class CommitmentGenerator {
 
   static verifyBalance(
     inputCommitments: Hex[],
-    outputCommitments: Hex[]
+    outputCommitments: Hex[],
   ): boolean {
     try {
       let inputSum = secp256k1.Point.ZERO;
@@ -100,7 +100,7 @@ export class CommitmentGenerator {
 
   static verifyBalanceWithAmounts(
     inputs: { amount: bigint; blinding: Hex }[],
-    outputs: { amount: bigint; blinding: Hex }[]
+    outputs: { amount: bigint; blinding: Hex }[],
   ): boolean {
     const inputSum = inputs.reduce((sum, i) => sum + i.amount, 0n);
     const outputSum = outputs.reduce((sum, o) => sum + o.amount, 0n);
@@ -111,10 +111,10 @@ export class CommitmentGenerator {
     }
 
     const inputCommitments = inputs.map((i) =>
-      this.recomputeCommitment(i.amount, i.blinding)
+      this.recomputeCommitment(i.amount, i.blinding),
     );
     const outputCommitments = outputs.map((o) =>
-      this.recomputeCommitment(o.amount, o.blinding)
+      this.recomputeCommitment(o.amount, o.blinding),
     );
 
     return this.verifyBalance(inputCommitments, outputCommitments);
@@ -122,7 +122,7 @@ export class CommitmentGenerator {
 
   static createBalancedCommitments(
     inputAmount: bigint,
-    outputAmounts: bigint[]
+    outputAmounts: bigint[],
   ): {
     inputs: Commitment[];
     outputs: Commitment[];
@@ -151,7 +151,7 @@ export class CommitmentGenerator {
     const inputs = [
       {
         commitment: bytesToHex(
-          this.computeCommitment(inputAmount, inputBlinding)
+          this.computeCommitment(inputAmount, inputBlinding),
         ),
         amount: inputAmount,
         blinding: bytesToHex(inputBlinding),
@@ -160,7 +160,7 @@ export class CommitmentGenerator {
 
     const outputs = outputAmounts.map((amount, i) => ({
       commitment: bytesToHex(
-        this.computeCommitment(amount, outputBlindings[i])
+        this.computeCommitment(amount, outputBlindings[i]),
       ),
       amount,
       blinding: bytesToHex(outputBlindings[i]),
