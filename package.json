@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
+    "start": "next start ",
     "lint": "eslint",
     "test": "vitest",
     "analyze": "ANALYZE=true next build"
@@ -45,7 +45,8 @@
     "three": "^0.181.2",
     "tweetnacl": "^1.0.3",
     "viem": "^2.41.2",
-    "wagmi": "^2.12.29"
+    "wagmi": "^2.12.29",
+    "webpack": "^5.104.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
