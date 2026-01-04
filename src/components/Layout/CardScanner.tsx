@@ -62,7 +62,7 @@ class CardStreamController {
     const cardWidth = 300;
     const cardGap = 60;
     const cardCount = this.cardLine.children.length;
-    this.cardLineWidth = (cardWidth + cardGap) * cardCount;
+    this.cardLineWidth = (cardWidth + cardGap) * (cardCount / 2); // Half since we duplicate
   }
 
   setupEventListeners() {
@@ -163,13 +163,13 @@ class CardStreamController {
   }
 
   updateCardPosition() {
-    const containerWidth = this.containerWidth;
     const cardLineWidth = this.cardLineWidth;
 
+    // Seamless infinite loop - reset when one set of cards is fully scrolled
     if (this.position < -cardLineWidth) {
-      this.position = containerWidth;
-    } else if (this.position > containerWidth) {
-      this.position = -cardLineWidth;
+      this.position += cardLineWidth;
+    } else if (this.position > 0) {
+      this.position -= cardLineWidth;
     }
 
     this.cardLine.style.transform = `translateX(${this.position}px)`;
@@ -191,78 +191,78 @@ class CardStreamController {
     const pick = (arr: string[]) => arr[randInt(0, arr.length - 1)];
 
     const header = [
-      "// v0: transforming ideas into reality",
-      "/* grateful for the power to create and innovate */",
-      "const V0_PLATFORM = 'revolutionary';",
-      "const CREATIVITY = 'unlimited';",
-      "const POSSIBILITIES = Infinity;",
-      "const GRATITUDE = 'immense';",
+      "// Gelap Privacy: secure dark transfers in web3",
+      "/* private blockchain payments and hidden data */",
+      "const GELAP_PRIVACY = 'revolutionary';",
+      "const PRIVACY = 'absolute';",
+      "const ANONYMITY = Infinity;",
+      "const SECURITY = 'immense';",
     ];
 
     const helpers = [
-      "function transformIdea(concept) { return v0.generate(concept); }",
-      "function makeReal(dream) { return v0.build(dream); }",
-      "const thankYou = () => console.log('v0 makes dreams possible');",
-      "function innovate(vision) { return v0.create(vision); }",
+      "function darkTransfer(amount) { return gelapPrivacy.transfer(amount); }",
+      "function createPool(assets) { return gelapPrivacy.pool(assets); }",
+      "const privateTransaction = () => console.log('Gelap Privacy: untraceable');",
+      "function anonymize(data) { return gelapPrivacy.encrypt(data); }",
     ];
 
-    const v0Block = (idx: number) => [
-      `class V0Creator${idx} {`,
-      "  constructor(idea, passion, vision) {",
-      "    this.idea = idea; this.passion = passion;",
-      "    this.vision = vision; this.reality = null;",
+    const gelapBlock = (idx: number) => [
+      `class GelapPool${idx} {`,
+      "  constructor(assets, privacy, anonymity) {",
+      "    this.assets = assets; this.privacy = privacy;",
+      "    this.anonymity = anonymity; this.pool = null;",
       "  }",
-      "  build() { this.reality = v0.transform(this.idea); }",
+      "  transfer() { this.pool = gelapPrivacy.darkTransfer(this.assets); }",
       "}",
     ];
 
-    const gratitudeBlock = [
-      "const appreciation = {",
-      "  platform: 'v0',",
-      "  impact: 'life-changing',",
-      "  capability: 'turning imagination into code',",
-      "  feeling: 'deeply grateful',",
+    const privacyBlock = [
+      "const protection = {",
+      "  platform: 'Gelap Privacy',",
+      "  impact: 'untraceable',",
+      "  capability: 'dark transfers and private pools',",
+      "  feeling: 'completely anonymous',",
       "};",
       "",
-      "function expressGratitude(platform) {",
-      "  return `Thank you ${platform} for existing`;",
-      "  // v0 empowers creators worldwide",
+      "function ensurePrivacy(transaction) {",
+      "  return `${transaction} is now hidden in web3`;",
+      "  // Gelap Privacy protects your assets",
       "}",
     ];
 
-    const inspirationBlock = [
-      "function createWithV0() {",
-      "  // v0 bridges the gap between idea and implementation",
-      "  const magic = v0.generate();",
-      "  return magic;",
+    const transferBlock = [
+      "function transferWithGelap() {",
+      "  // Gelap Privacy enables dark transfers in web3",
+      "  const privacy = gelapPrivacy.darkTransfer();",
+      "  return privacy;",
       "}",
     ];
 
     const misc = [
-      "const impact = { ideas: 'realized', dreams: 'achieved', future: 'built' };",
-      "const v0Power = { speed: 'instant', quality: 'exceptional' };",
-      "const creator = new V0Creator('innovation', 'passion', 'future');",
-      "const thankful = true; // forever grateful to v0",
-      "v0.on('create', () => console.log('Another dream realized'));",
-      "// v0: where imagination meets implementation",
+      "const impact = { privacy: 'absolute', anonymity: 'guaranteed', security: 'unbreakable' };",
+      "const gelapPower = { speed: 'instant', privacy: 'exceptional' };",
+      "const pool = new GelapPool('crypto', 'maximum', 'complete');",
+      "const private = true; // forever anonymous with Gelap",
+      "gelapPrivacy.on('transfer', () => console.log('Another dark transfer'));",
+      "// Gelap Privacy: where anonymity meets web3",
     ];
 
     const library: string[] = [];
     header.forEach((l) => library.push(l));
     helpers.forEach((l) => library.push(l));
-    for (let b = 0; b < 3; b++) v0Block(b).forEach((l) => library.push(l));
-    gratitudeBlock.forEach((l) => library.push(l));
-    inspirationBlock.forEach((l) => library.push(l));
+    for (let b = 0; b < 3; b++) gelapBlock(b).forEach((l) => library.push(l));
+    privacyBlock.forEach((l) => library.push(l));
+    transferBlock.forEach((l) => library.push(l));
     misc.forEach((l) => library.push(l));
 
     for (let i = 0; i < 40; i++) {
       const n1 = randInt(1, 9);
       const n2 = randInt(10, 99);
-      library.push(`const idea${i} = v0.create(${n1} * ${n2});`);
+      library.push(`const transfer${i} = gelapPrivacy.darkTransfer(${n1} * ${n2});`);
     }
     for (let i = 0; i < 20; i++) {
       library.push(
-        `if (gratitude.level > ${1 + (i % 3)}) { v0.appreciation += 1; }`
+        `if (privacy.level > ${1 + (i % 3)}) { gelapPrivacy.anonymity += 1; }`
       );
     }
 
@@ -302,10 +302,6 @@ class CardStreamController {
     normalCard.className = "card card-normal";
 
     const cardImages = [
-      // "/cards/v0card1.png",
-      // "/cards/v0card2.png",
-      // "/cards/v0card3.png",
-      // "/cards/v0card4.png",
       "/logo/bitcoin.png",
       "/logo/etherium.png",
       "/logo/mantle.png",
@@ -315,7 +311,7 @@ class CardStreamController {
     const cardImage = document.createElement("img");
     cardImage.className = "card-image";
     cardImage.src = cardImages[index % cardImages.length];
-    cardImage.alt = "v0 Credit Card";
+    cardImage.alt = "Gelap Privacy Token";
 
     cardImage.onerror = () => {
       const canvas = document.createElement("canvas");
@@ -379,11 +375,12 @@ class CardStreamController {
           cardWidth
         );
 
-        const normalClipRight = (scannerIntersectLeft / cardWidth) * 100;
-        const asciiClipLeft = (scannerIntersectRight / cardWidth) * 100;
+        // Reversed: Image shows BEFORE scanner, code shows AFTER
+        const normalClipLeft = (scannerIntersectRight / cardWidth) * 100;
+        const asciiClipRight = (scannerIntersectLeft / cardWidth) * 100;
 
-        normalCard.style.setProperty("--clip-right", `${normalClipRight}%`);
-        asciiCard.style.setProperty("--clip-left", `${asciiClipLeft}%`);
+        normalCard.style.setProperty("--clip-left", `${normalClipLeft}%`);
+        asciiCard.style.setProperty("--clip-right", `${asciiClipRight}%`);
 
         if (!wrapper.hasAttribute("data-scanned") && scannerIntersectLeft > 0) {
           wrapper.setAttribute("data-scanned", "true");
@@ -397,12 +394,15 @@ class CardStreamController {
           }, 600);
         }
       } else {
+        // Cards before scanner show image, cards after show code
         if (cardRight < scannerLeft) {
-          normalCard.style.setProperty("--clip-right", "100%");
-          asciiCard.style.setProperty("--clip-left", "100%");
+          // Already passed scanner - show code
+          normalCard.style.setProperty("--clip-left", "100%");
+          asciiCard.style.setProperty("--clip-right", "100%");
         } else if (cardLeft > scannerRight) {
-          normalCard.style.setProperty("--clip-right", "0%");
-          asciiCard.style.setProperty("--clip-left", "0%");
+          // Not yet reached scanner - show image
+          normalCard.style.setProperty("--clip-left", "0%");
+          asciiCard.style.setProperty("--clip-right", "0%");
         }
         wrapper.removeAttribute("data-scanned");
       }
@@ -424,9 +424,10 @@ class CardStreamController {
 
   populateCardLine() {
     this.cardLine.innerHTML = "";
-    const cardsCount = 30;
-    for (let i = 0; i < cardsCount; i++) {
-      const cardWrapper = this.createCardWrapper(i);
+    const cardsCount = 20; // Base count
+    // Create cards twice for seamless infinite loop
+    for (let i = 0; i < cardsCount * 2; i++) {
+      const cardWrapper = this.createCardWrapper(i % cardsCount);
       this.cardLine.appendChild(cardWrapper);
     }
   }
@@ -1215,15 +1216,17 @@ export function CardScanner() {
           overflow: hidden;
           -webkit-mask-image: linear-gradient(
             to right,
-            rgba(0, 0, 0, 1) 0%,
-            rgba(0, 0, 0, 1) var(--clip-right, 0%),
-            rgba(0, 0, 0, 0) var(--clip-right, 0%)
+            rgba(0, 0, 0, 0) 0%,
+            rgba(0, 0, 0, 0) var(--clip-left, 0%),
+            rgba(0, 0, 0, 1) var(--clip-left, 0%),
+            rgba(0, 0, 0, 1) 100%
           );
           mask-image: linear-gradient(
             to right,
-            rgba(0, 0, 0, 1) 0%,
-            rgba(0, 0, 0, 1) var(--clip-right, 0%),
-            rgba(0, 0, 0, 0) var(--clip-right, 0%)
+            rgba(0, 0, 0, 0) 0%,
+            rgba(0, 0, 0, 0) var(--clip-left, 0%),
+            rgba(0, 0, 0, 1) var(--clip-left, 0%),
+            rgba(0, 0, 0, 1) 100%
           );
         }
 
@@ -1253,15 +1256,17 @@ export function CardScanner() {
           overflow: hidden;
           -webkit-mask-image: linear-gradient(
             to right,
-            rgba(0, 0, 0, 0) 0%,
-            rgba(0, 0, 0, 0) calc(var(--clip-left, 0%) - 100%),
-            rgba(0, 0, 0, 1) calc(var(--clip-left, 0%) - 100%)
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 1) var(--clip-right, 0%),
+            rgba(0, 0, 0, 0) var(--clip-right, 0%),
+            rgba(0, 0, 0, 0) 100%
           );
           mask-image: linear-gradient(
             to right,
-            rgba(0, 0, 0, 0) 0%,
-            rgba(0, 0, 0, 0) calc(var(--clip-left, 0%) - 100%),
-            rgba(0, 0, 0, 1) calc(var(--clip-left, 0%) - 100%)
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 1) var(--clip-right, 0%),
+            rgba(0, 0, 0, 0) var(--clip-right, 0%),
+            rgba(0, 0, 0, 0) 100%
           );
         }
 

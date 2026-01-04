@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import { NavBarPage } from "@/src/components/Element/Navbar/Navbar";
+import { Footer } from "@/src/components/Element/Footer/Footer";
 import { TransferProvider } from "@/src/contexts/TransferContext";
 import { TransferModal } from "@/src/components/Modal/TransferModal";
 import { Web3Provider } from "@/src/providers/Web3Provider";
@@ -18,12 +19,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GeLabs",
+  title: "Gelap Privacy",
   description:
-    "GeLabs is a platform dedicated to innovative web development and privacy-focused solutions.",
+    "Gelap Privacy is a platform dedicated to innovative web development and privacy-focused solutions.",
 
   generator: "Next.js",
-  applicationName: "GeLabs",
+  applicationName: "Gelap Privacy",
   alternates: {
     canonical: "https://gelapprivacy.vercel.app/",
   },
@@ -86,6 +87,7 @@ export default function RootLayout({
             <NavBarPage />
             <TransferModal />
             {children}
+            <Footer />
           </TransferProvider>
         </Web3Provider>
       </body>
