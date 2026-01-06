@@ -28,7 +28,10 @@ export default function About() {
   const shouldDisableAnimations = isMobile || prefersReducedMotion;
 
   return (
-    <section className="flex text-center justify-center items-center flex-col bg-radial-[at_50%_25%] from-dark_teal_3-400 to-black">
+    <section
+      id="about"
+      className="flex text-center justify-center items-center flex-col bg-radial-[at_50%_25%] from-dark_teal_3-400 to-black"
+    >
       <MagicBento
         textAutoHide={true}
         enableStars={!shouldDisableAnimations}

@@ -3,11 +3,9 @@
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import Hero from "@/src/modules/home/Hero";
+import About from "@/src/modules/home/About";
 
 // Lazy load komponen berat untuk performa lebih baik
-const About = dynamic(() => import("@/src/modules/home/About"), {
-  loading: () => <div className="min-h-screen bg-black" />,
-});
 
 const Testimonials = dynamic(() => import("@/src/modules/home/Testimonials"), {
   loading: () => <div className="min-h-[400px] bg-black" />,
@@ -56,7 +54,7 @@ export default function Home() {
     <>
       <TerminalOnboarding />
       <Hero />
-      <div ref={aboutTriggerRef}>{shouldLoadAbout && <About />}</div>
+      <About />
       <div ref={testimonialsTriggerRef}>
         {shouldLoadTestimonials && <Testimonials />}
       </div>

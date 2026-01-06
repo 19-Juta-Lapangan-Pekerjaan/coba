@@ -191,7 +191,7 @@ class CardStreamController {
     const pick = (arr: string[]) => arr[randInt(0, arr.length - 1)];
 
     const header = [
-      "// Gelap Privacy: secure dark transfers in web3",
+      "// Gelap: secure dark transfers in web3",
       "/* private blockchain payments and hidden data */",
       "const GELAP_PRIVACY = 'revolutionary';",
       "const PRIVACY = 'absolute';",
@@ -202,7 +202,7 @@ class CardStreamController {
     const helpers = [
       "function darkTransfer(amount) { return gelapPrivacy.transfer(amount); }",
       "function createPool(assets) { return gelapPrivacy.pool(assets); }",
-      "const privateTransaction = () => console.log('Gelap Privacy: untraceable');",
+      "const privateTransaction = () => console.log('Gelap: untraceable');",
       "function anonymize(data) { return gelapPrivacy.encrypt(data); }",
     ];
 
@@ -218,7 +218,7 @@ class CardStreamController {
 
     const privacyBlock = [
       "const protection = {",
-      "  platform: 'Gelap Privacy',",
+      "  platform: 'Gelap',",
       "  impact: 'untraceable',",
       "  capability: 'dark transfers and private pools',",
       "  feeling: 'completely anonymous',",
@@ -226,13 +226,13 @@ class CardStreamController {
       "",
       "function ensurePrivacy(transaction) {",
       "  return `${transaction} is now hidden in web3`;",
-      "  // Gelap Privacy protects your assets",
+      "  // Gelap protects your assets",
       "}",
     ];
 
     const transferBlock = [
       "function transferWithGelap() {",
-      "  // Gelap Privacy enables dark transfers in web3",
+      "  // Gelap enables dark transfers in web3",
       "  const privacy = gelapPrivacy.darkTransfer();",
       "  return privacy;",
       "}",
@@ -244,7 +244,7 @@ class CardStreamController {
       "const pool = new GelapPool('crypto', 'maximum', 'complete');",
       "const private = true; // forever anonymous with Gelap",
       "gelapPrivacy.on('transfer', () => console.log('Another dark transfer'));",
-      "// Gelap Privacy: where anonymity meets web3",
+      "// Gelap: where anonymity meets web3",
     ];
 
     const library: string[] = [];
@@ -313,7 +313,7 @@ class CardStreamController {
     const cardImage = document.createElement("img");
     cardImage.className = "card-image";
     cardImage.src = cardImages[index % cardImages.length];
-    cardImage.alt = "Gelap Privacy Token";
+    cardImage.alt = "Gelap Token";
 
     cardImage.onerror = () => {
       const canvas = document.createElement("canvas");

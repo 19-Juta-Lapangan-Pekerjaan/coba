@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Gelap Privacy - App",
+  title: "Gelap - App",
   description: "Institutional Access Layer",
 };
 

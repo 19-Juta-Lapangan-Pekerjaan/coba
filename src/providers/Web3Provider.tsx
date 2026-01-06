@@ -28,7 +28,7 @@ const queryClient = new QueryClient();
 
 // Configure wagmi with RainbowKit
 const config = getDefaultConfig({
-  appName: "Gelap Privacy",
+  appName: "Gelap",
   projectId: "f8aabd752876f7f9ef70f2ed2ff74639", // Can be replaced with other walletconnect project IDs
   chains: [mainnet, sepolia, base, arbitrum, mantle],
   ssr: false,

@@ -4,6 +4,11 @@
 
 @custom-variant dark (&:is(.dark *));
 
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 120px;
+}
+
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);

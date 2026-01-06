@@ -13,10 +13,12 @@ import {
   ChevronDown,
   ArrowUpRight,
   ArrowDownLeft,
+  ArrowLeft,
   Wallet,
   X,
   ExternalLink,
 } from "lucide-react";
+import HamburgerButton from "./Hamburger";
 
 const tabs: { id: AppTab; label: string }[] = [
   { id: "dashboard", label: "DASHBOARD" },
@@ -37,7 +39,9 @@ const supportedChains = [
 export default function AppNavbar() {
   const { activeTab, setActiveTab } = useApp();
   const [walletDropdownOpen, setWalletDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
   const { address, chain: currentChain } = useAccount();
   const { disconnect } = useDisconnect();
 
@@ -76,6 +80,12 @@ export default function AppNavbar() {
       ) {
         setWalletDropdownOpen(false);
       }
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target as Node)
+      ) {
+        setMobileMenuOpen(false);
+      }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -95,22 +105,19 @@ export default function AppNavbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-md border-b border-zinc-800/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link href="/app" className="flex items-center gap-2">
-            <Image
-              src="/favicon/favicon-32x32.png"
-              alt="Gelap Logo"
-              width={28}
-              height={28}
-              className="rounded"
-            />
-            <span className="text-white font-bold text-lg tracking-wide">
-              GELAP
+          {/* Back Button */}
+          <Link
+            href="/"
+            className="flex items-center gap-2 group transition-all duration-300 hover:opacity-80"
+          >
+            <ArrowLeft className="w-5 h-5 text-zinc-400 transition-all duration-300 group-hover:text-purple-400 group-hover:-translate-x-1" />
+            <span className="text-zinc-400 font-medium text-sm tracking-wide transition-colors duration-300 group-hover:text-purple-400">
+              Back
             </span>
           </Link>
 
-          {/* Tab Navigation */}
-          <div className="flex items-center gap-1">
+          {/* Tab Navigation - Hidden on mobile/md */}
+          <div className="hidden lg:flex items-center gap-1">
             {tabs.map((tab) => (
               <motion.button
                 key={tab.id}
@@ -130,6 +137,50 @@ export default function AppNavbar() {
 
           {/* Right Side - Network & Wallet */}
           <div className="flex items-center gap-3">
+            {/* Mobile Hamburger Menu */}
+            <div className="relative lg:hidden" ref={mobileMenuRef}>
+              <HamburgerButton
+                isOpen={mobileMenuOpen}
+                setIsOpen={setMobileMenuOpen}
+                colorClassName="bg-white"
+              />
+
+              {/* Mobile Dropdown Menu */}
+              <AnimatePresence>
+                {mobileMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-full mt-4 w-48 bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl overflow-hidden"
+                  >
+                    <div className="py-2">
+                      {tabs.map((tab) => (
+                        <motion.button
+                          key={tab.id}
+                          onClick={() => {
+                            setActiveTab(tab.id);
+                            setMobileMenuOpen(false);
+                          }}
+                          whileHover={{
+                            backgroundColor: "rgba(63, 63, 70, 0.5)",
+                          }}
+                          whileTap={{ scale: 0.98 }}
+                          className={`w-full px-4 py-3 text-left text-sm font-medium transition-all ${
+                            activeTab === tab.id
+                              ? "bg-zinc-800 text-purple-400 border-l-2 border-purple-400"
+                              : "text-zinc-300 hover:text-white"
+                          }`}
+                        >
+                          {tab.label}
+                        </motion.button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
             <ConnectButton.Custom>
               {({
                 account,
@@ -204,7 +255,9 @@ export default function AppNavbar() {
                                 {account.displayName}
                               </span>
                               <ChevronDown
-                                className={`w-3 h-3 text-zinc-500 transition-transform ${walletDropdownOpen ? "rotate-180" : ""}`}
+                                className={`w-3 h-3 text-zinc-500 transition-transform ${
+                                  walletDropdownOpen ? "rotate-180" : ""
+                                }`}
                               />
                             </motion.button>
 
@@ -288,15 +341,14 @@ export default function AppNavbar() {
                                           <div className="text-right">
                                             <p className="text-white text-sm font-medium">
                                               {formatBalance(
-                                                item.balance?.formatted,
+                                                item.balance?.formatted
                                               )}
                                             </p>
                                             <p className="text-zinc-500 text-xs">
                                               {formatUsd(
                                                 parseFloat(
-                                                  item.balance?.formatted ||
-                                                    "0",
-                                                ) * 3500,
+                                                  item.balance?.formatted || "0"
+                                                ) * 3500
                                               )}
                                             </p>
                                           </div>

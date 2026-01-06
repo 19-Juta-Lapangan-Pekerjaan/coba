@@ -56,7 +56,7 @@ export default function TerminalOnboarding() {
           <Terminal>
             <TypingAnimation>&gt; gelap init --network mainnet</TypingAnimation>
             <AnimatedSpan delay={1500}>
-              ✔ Connecting to Gelap Privacy Protocol...
+              ✔ Connecting to Gelap Protocol...
             </AnimatedSpan>
             <AnimatedSpan delay={2000}>
               ✔ Encrypt wallet with zero-knowledge proof

@@ -97,13 +97,16 @@ ReviewCard.displayName = "ReviewCard";
 
 export default function Testimonials() {
   return (
-    <section className="relative flex h-fit bg-radial-[at_50%_75%] from-dark_teal_3-400 to-black/10 w-full flex-col items-center justify-start overflow-hidden py-16">
+    <section
+      id="testimonies"
+      className="relative flex h-fit bg-radial-[at_50%_75%] from-dark_teal_3-400 to-black/10 w-full flex-col items-center justify-start overflow-hidden py-16"
+    >
       {/* Header */}
       <div className="text-center z-10">
         <h2 className="bg-gradient-to-br from-white via-white to-stormy_teal-900 bg-clip-text text-4xl font-bold tracking-tighter text-transparent sm:text-6xl">
           What they say about
           <br />
-          Gelap Privacy?
+          Gelap?
         </h2>
       </div>
 
@@ -116,22 +119,44 @@ export default function Testimonials() {
               "translateX(-50px) translateZ(-50px) rotateX(10deg) rotateY(-5deg) rotateZ(10deg)",
           }}
         >
-          <Marquee pauseOnHover vertical className="[--duration:25s]">
+          <Marquee
+            repeat={4}
+            pauseOnHover
+            vertical
+            className="[--duration:25s]"
+          >
             {firstRow.map((review) => (
               <ReviewCard key={review.username} {...review} />
             ))}
           </Marquee>
-          <Marquee reverse pauseOnHover className="[--duration:25s]" vertical>
+          <Marquee
+            repeat={4}
+            reverse
+            pauseOnHover
+            className="[--duration:25s]"
+            vertical
+          >
             {secondRow.map((review) => (
               <ReviewCard key={review.username} {...review} />
             ))}
           </Marquee>
-          <Marquee reverse pauseOnHover className="[--duration:25s]" vertical>
+          <Marquee
+            repeat={4}
+            reverse
+            pauseOnHover
+            className="[--duration:25s]"
+            vertical
+          >
             {thirdRow.map((review) => (
               <ReviewCard key={review.username} {...review} />
             ))}
           </Marquee>
-          <Marquee pauseOnHover className="[--duration:25s]" vertical>
+          <Marquee
+            repeat={4}
+            pauseOnHover
+            className="[--duration:25s]"
+            vertical
+          >
             {fourthRow.map((review) => (
               <ReviewCard key={review.username} {...review} />
             ))}

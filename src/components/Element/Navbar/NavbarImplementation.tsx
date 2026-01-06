@@ -12,6 +12,7 @@ interface NavItem {
   name: string;
   url: string;
   icon: LucideIcon;
+  blank: boolean;
 }
 
 interface NavBarProps {
@@ -21,23 +22,12 @@ interface NavBarProps {
 
 export function NavBar({ items, className }: NavBarProps) {
   const [activeTab, setActiveTab] = useState(items[0].name);
-  const [isMobile, setIsMobile] = useState(false);
   const [showTransferButton, setShowTransferButton] = useState(false);
   const { openTransfer } = useTransfer();
 
   const handleOpenTransfer = () => {
     openTransfer();
   };
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -54,7 +44,7 @@ export function NavBar({ items, className }: NavBarProps) {
     <div
       className={cn(
         "fixed sm:top-0 bottom-0 sm:bottom-auto pb-4 left-1/2 -translate-x-1/2 z-50 sm:pt-6",
-        className,
+        className
       )}
     >
       <div className="flex w-fit items-center gap-3 bg-background/5 border border-border backdrop-blur-lg py-1 px-1 rounded-full shadow-lg transition-all duration-300">
@@ -66,11 +56,12 @@ export function NavBar({ items, className }: NavBarProps) {
             <Link
               key={item.name}
               href={item.url}
+              target={item.blank ? "_blank" : "_self"}
               onClick={() => setActiveTab(item.name)}
               className={cn(
                 "relative cursor-pointer text-sm font-semibold sm:px-6 sm:py-2 py-3 px-4 rounded-full transition-colors",
-                "text-white hover:text-white",
-                isActive && "bg-muted text-black hover:text-black/50",
+                "text-white hover:text-white/80",
+                isActive && "bg-muted text-black hover:text-black/50"
               )}
             >
               <span className="hidden md:inline">{item.name}</span>

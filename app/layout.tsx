@@ -18,12 +18,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Gelap Privacy",
+  title: "Gelap",
   description:
-    "Gelap Privacy is a platform dedicated to innovative web development and privacy-focused solutions.",
+    "Gelap is a platform dedicated to innovative web development and privacy-focused solutions.",
 
   generator: "Next.js",
-  applicationName: "Gelap Privacy",
+  applicationName: "Gelap",
   alternates: {
     canonical: "https://gelapprivacy.vercel.app/",
   },
