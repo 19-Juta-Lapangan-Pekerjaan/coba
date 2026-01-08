@@ -3,6 +3,20 @@ import type { Configuration } from "webpack";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  async headers() {
+    return [
+      {
+        source: "/:all*(svg|jpg|png|webp|avif|woff2)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+    ];
+  },
+  poweredByHeader: false,
 
   // Optimasi image
   images: {
@@ -19,9 +33,12 @@ const nextConfig: NextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
   },
+  reactCompiler: true,
 
   // React strict mode untuk development
   reactStrictMode: true,
+  compress: true, // Enable gzip compression (usually default, but explicit is better)
+  productionBrowserSourceMaps: false, // Keep false for smaller bundles
 
   // Optimasi experimental features
   experimental: {
@@ -33,6 +50,7 @@ const nextConfig: NextConfig = {
       "framer-motion",
       "motion",
     ],
+    scrollRestoration: true, // Better UX for back navigation
   },
 
   // Webpack optimization
