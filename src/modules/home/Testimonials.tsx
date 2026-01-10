@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import { cn } from "@/src/lib/utils";
 import { Marquee } from "@/src/components/ui/marquee";
 import Image from "next/image";
@@ -43,10 +42,8 @@ const reviews = [
   },
 ];
 
-const firstRow = reviews.slice(0, 3);
-const secondRow = reviews.slice(3, 6);
-const thirdRow = reviews.slice(0, 3);
-const fourthRow = reviews.slice(3, 6);
+const firstRow = reviews.slice(0, reviews.length / 2);
+const secondRow = reviews.slice(reviews.length / 2);
 
 const ReviewCard = memo(
   ({
@@ -63,7 +60,7 @@ const ReviewCard = memo(
     return (
       <figure
         className={cn(
-          "relative h-full w-44 cursor-pointer overflow-hidden rounded-xl border p-4",
+          "relative h-full w-64 cursor-pointer overflow-hidden rounded-xl border p-6",
           "border-stormy_teal-500/20 bg-black/40 backdrop-blur-sm",
           "hover:bg-stormy_teal-500/10 hover:border-stormy_teal-500/40 transition-all"
         )}
@@ -99,10 +96,10 @@ export default function Testimonials() {
   return (
     <section
       id="testimonies"
-      className="relative flex h-fit bg-radial-[at_50%_75%] from-dark_teal_3-400 to-black/10 w-full flex-col items-center justify-start overflow-hidden py-16"
+      className="relative flex h-fit bg-radial-[at_50%_75%] from-dark_teal_3-400 to-black/10 w-full flex-col items-center justify-start overflow-hidden py-24"
     >
       {/* Header */}
-      <div className="text-center z-10">
+      <div className="text-center z-10 mb-12">
         <h2 className="bg-gradient-to-br from-white via-white to-stormy_teal-900 bg-clip-text text-4xl font-bold tracking-tighter text-transparent sm:text-6xl">
           What they say about
           <br />
@@ -111,60 +108,24 @@ export default function Testimonials() {
       </div>
 
       {/* Marquee Container */}
-      <div className="flex flex-row items-center justify-center h-fit [perspective:300px] -mt-[400px]">
-        <div
-          className="flex flex-row items-center gap-4"
-          style={{
-            transform:
-              "translateX(-50px) translateZ(-50px) rotateX(10deg) rotateY(-5deg) rotateZ(10deg)",
-          }}
-        >
-          <Marquee
-            repeat={4}
-            pauseOnHover
-            vertical
-            className="[--duration:25s]"
-          >
-            {firstRow.map((review) => (
-              <ReviewCard key={review.username} {...review} />
-            ))}
-          </Marquee>
-          <Marquee
-            repeat={4}
-            reverse
-            pauseOnHover
-            className="[--duration:25s]"
-            vertical
-          >
-            {secondRow.map((review) => (
-              <ReviewCard key={review.username} {...review} />
-            ))}
-          </Marquee>
-          <Marquee
-            repeat={4}
-            reverse
-            pauseOnHover
-            className="[--duration:25s]"
-            vertical
-          >
-            {thirdRow.map((review) => (
-              <ReviewCard key={review.username} {...review} />
-            ))}
-          </Marquee>
-          <Marquee
-            repeat={4}
-            pauseOnHover
-            className="[--duration:25s]"
-            vertical
-          >
-            {fourthRow.map((review) => (
-              <ReviewCard key={review.username} {...review} />
-            ))}
-          </Marquee>
-        </div>
+      <div className="relative flex w-full flex-col items-center justify-center overflow-hidden">
+        <Marquee pauseOnHover className="[--duration:30s] py-4">
+          {firstRow.map((review) => (
+            <ReviewCard key={review.username} {...review} />
+          ))}
+        </Marquee>
+        <Marquee reverse pauseOnHover className="[--duration:30s] py-4">
+          {secondRow.map((review) => (
+            <ReviewCard key={review.username} {...review} />
+          ))}
+        </Marquee>
+
+        {/* Gradient overlays */}
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-black via-black/40 to-transparent"></div>
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-black via-black/40 to-transparent"></div>
       </div>
 
-      {/* Gradient overlays */}
+      {/* Top/Bottom Gradient overlays */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-black to-transparent"></div>
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-black to-transparent"></div>
     </section>

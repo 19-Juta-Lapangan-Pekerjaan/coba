@@ -53,6 +53,13 @@ const nextConfig: NextConfig = {
     scrollRestoration: true, // Better UX for back navigation
   },
 
+  // Modular imports for better tree-shaking
+  modularizeImports: {
+    "lucide-react": {
+      transform: "lucide-react/dist/esm/icons/{{kebabCase member}}",
+    },
+  },
+
   // Webpack optimization
   webpack: (config: Configuration, { isServer }) => {
     // Optimization settings

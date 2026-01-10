@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "react";
-import createGlobe, { COBEOptions } from "cobe";
+import { useEffect, useRef, useState } from "react";
+import type { COBEOptions } from "cobe";
 import { useMotionValue, useSpring } from "motion/react";
 
 import { cn } from "@/src/lib/utils";
@@ -46,6 +46,7 @@ export function Globe({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pointerInteracting = useRef<number | null>(null);
   const pointerInteractionMovement = useRef(0);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const r = useMotionValue(0);
   const rs = useSpring(r, {
@@ -70,30 +71,43 @@ export function Globe({
   };
 
   useEffect(() => {
+    let globe: ReturnType<typeof import("cobe").default> | null = null;
+
     const onResize = () => {
       if (canvasRef.current) {
         width = canvasRef.current.offsetWidth;
       }
     };
 
-    window.addEventListener("resize", onResize);
-    onResize();
+    // Dynamic import for cobe
+    import("cobe").then((cobe) => {
+      if (!canvasRef.current) return;
 
-    const globe = createGlobe(canvasRef.current!, {
-      ...config,
-      width: width * 2,
-      height: width * 2,
-      onRender: (state) => {
-        if (!pointerInteracting.current) phi += 0.005;
-        state.phi = phi + rs.get();
-        state.width = width * 2;
-        state.height = width * 2;
-      },
+      window.addEventListener("resize", onResize);
+      onResize();
+
+      globe = cobe.default(canvasRef.current!, {
+        ...config,
+        width: width * 2,
+        height: width * 2,
+        onRender: (state) => {
+          if (!pointerInteracting.current) phi += 0.005;
+          state.phi = phi + rs.get();
+          state.width = width * 2;
+          state.height = width * 2;
+        },
+      });
+
+      setTimeout(() => {
+        if (canvasRef.current) {
+          canvasRef.current.style.opacity = "1";
+          setIsLoaded(true);
+        }
+      }, 0);
     });
 
-    setTimeout(() => (canvasRef.current!.style.opacity = "1"), 0);
     return () => {
-      globe.destroy();
+      if (globe) globe.destroy();
       window.removeEventListener("resize", onResize);
     };
   }, [rs, config]);
