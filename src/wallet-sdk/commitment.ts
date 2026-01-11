@@ -1,6 +1,6 @@
-import { type Hex, bytesToHex, hexToBytes, keccak256 } from "viem";
-import { secp256k1 } from "@noble/curves/secp256k1.js";
-import type { Commitment } from "./types";
+import { type Hex, bytesToHex, hexToBytes, keccak256 } from 'viem';
+import { secp256k1 } from '@noble/curves/secp256k1.js';
+import type { Commitment } from './types';
 
 export class CommitmentGenerator {
   private static _hGenerator: typeof secp256k1.Point.BASE | null = null;
@@ -23,19 +23,12 @@ export class CommitmentGenerator {
     return bytesToHex(commitmentBytes);
   }
 
-  static verifyCommitment(
-    commitment: Hex,
-    amount: bigint,
-    blinding: Hex,
-  ): boolean {
+  static verifyCommitment(commitment: Hex, amount: bigint, blinding: Hex): boolean {
     const recomputed = this.recomputeCommitment(amount, blinding);
     return commitment.toLowerCase() === recomputed.toLowerCase();
   }
 
-  private static computeCommitment(
-    amount: bigint,
-    blinding: Uint8Array,
-  ): Uint8Array {
+  private static computeCommitment(amount: bigint, blinding: Uint8Array): Uint8Array {
     const G = secp256k1.Point.BASE;
     const H = this.getHGenerator();
 
@@ -45,7 +38,12 @@ export class CommitmentGenerator {
     const amountH = H.multiply(amount);
     const commitment = rG.add(amountH);
 
-    return commitment.toBytes(true);
+    // IMPORTANT: Contract expects bytes32, so we use only the x-coordinate
+    // Using uncompressed format (false) gives us the full 64 bytes, then we take first 32
+    const uncompressedBytes = commitment.toBytes(false); // 65 bytes: [0x04, x(32), y(32)]
+
+    // Return only the x-coordinate (32 bytes) - skip the 0x04 prefix
+    return uncompressedBytes.slice(1, 33);
   }
 
   private static getHGenerator(): typeof secp256k1.Point.BASE {
@@ -57,15 +55,14 @@ export class CommitmentGenerator {
 
     const gBytes = G.toBytes(true);
 
-    const domainSeparator = new TextEncoder().encode("PEDERSEN_H_GENERATOR_V2");
+    const domainSeparator = new TextEncoder().encode('PEDERSEN_H_GENERATOR_V2');
     const input = new Uint8Array([...domainSeparator, ...gBytes]);
 
     const hash = keccak256(bytesToHex(input));
     const hashBytes = hexToBytes(hash);
 
     // secp256k1 curve order
-    const n =
-      0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141n;
+    const n = 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141n;
     const hScalar = this.bytesToBigInt(hashBytes) % n;
 
     const H = G.multiply(hScalar);
@@ -74,10 +71,7 @@ export class CommitmentGenerator {
     return H;
   }
 
-  static verifyBalance(
-    inputCommitments: Hex[],
-    outputCommitments: Hex[],
-  ): boolean {
+  static verifyBalance(inputCommitments: Hex[], outputCommitments: Hex[]): boolean {
     try {
       let inputSum = secp256k1.Point.ZERO;
       for (const c of inputCommitments) {
@@ -93,7 +87,7 @@ export class CommitmentGenerator {
 
       return inputSum.equals(outputSum);
     } catch (error) {
-      console.error("Balance verification failed: ", error);
+      console.error('Balance verification failed: ', error);
       return false;
     }
   }
@@ -106,16 +100,12 @@ export class CommitmentGenerator {
     const outputSum = outputs.reduce((sum, o) => sum + o.amount, 0n);
 
     if (inputSum !== outputSum) {
-      console.error("Amounts do not balance:", inputSum, "vs", outputSum);
+      console.error('Amounts do not balance:', inputSum, 'vs', outputSum);
       return false;
     }
 
-    const inputCommitments = inputs.map((i) =>
-      this.recomputeCommitment(i.amount, i.blinding),
-    );
-    const outputCommitments = outputs.map((o) =>
-      this.recomputeCommitment(o.amount, o.blinding),
-    );
+    const inputCommitments = inputs.map((i) => this.recomputeCommitment(i.amount, i.blinding));
+    const outputCommitments = outputs.map((o) => this.recomputeCommitment(o.amount, o.blinding));
 
     return this.verifyBalance(inputCommitments, outputCommitments);
   }
@@ -129,7 +119,7 @@ export class CommitmentGenerator {
   } {
     const totalOutput = outputAmounts.reduce((sum, amt) => sum + amt, 0n);
     if (inputAmount !== totalOutput) {
-      throw new Error("Amounts do not balance");
+      throw new Error('Amounts do not balance');
     }
 
     const outputBlindings: Uint8Array[] = [];
@@ -141,8 +131,7 @@ export class CommitmentGenerator {
 
       const blindingScalar = this.bytesToBigInt(blinding);
       // secp256k1 curve order
-      const n =
-        0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141n;
+      const n = 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141n;
       blindingSum = (blindingSum + blindingScalar) % n;
     }
 
@@ -150,18 +139,14 @@ export class CommitmentGenerator {
 
     const inputs = [
       {
-        commitment: bytesToHex(
-          this.computeCommitment(inputAmount, inputBlinding),
-        ),
+        commitment: bytesToHex(this.computeCommitment(inputAmount, inputBlinding)),
         amount: inputAmount,
         blinding: bytesToHex(inputBlinding),
       },
     ];
 
     const outputs = outputAmounts.map((amount, i) => ({
-      commitment: bytesToHex(
-        this.computeCommitment(amount, outputBlindings[i]),
-      ),
+      commitment: bytesToHex(this.computeCommitment(amount, outputBlindings[i])),
       amount,
       blinding: bytesToHex(outputBlindings[i]),
     }));
