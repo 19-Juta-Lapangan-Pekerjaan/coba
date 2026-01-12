@@ -7,7 +7,7 @@ import {
   encodeFunctionData,
   decodeEventLog,
   parseEventLogs,
-} from "viem";
+} from 'viem';
 
 import {
   CONTRACT_ADDRESSES,
@@ -16,7 +16,7 @@ import {
   DEFAULT_CHAIN_ID,
   PROVER_API_URL,
   PROVER_ENDPOINTS,
-} from "@/src/lib/constants";
+} from '@/src/lib/constants';
 
 // ============================================================================
 // Types
@@ -121,7 +121,7 @@ export class ContractService {
   constructor(
     publicClient: PublicClient,
     walletClient: WalletClient | null = null,
-    chainId: number = DEFAULT_CHAIN_ID
+    chainId: number = DEFAULT_CHAIN_ID,
   ) {
     this.publicClient = publicClient;
     this.walletClient = walletClient;
@@ -145,7 +145,7 @@ export class ContractService {
     const result = await this.publicClient.readContract({
       address: this.contractAddress,
       abi: GELAP_SHIELDED_ACCOUNT_ABI,
-      functionName: "merkleRoot",
+      functionName: 'merkleRoot',
     });
     return result as Hex;
   }
@@ -157,7 +157,7 @@ export class ContractService {
     const result = await this.publicClient.readContract({
       address: this.contractAddress,
       abi: GELAP_SHIELDED_ACCOUNT_ABI,
-      functionName: "nullifierUsed",
+      functionName: 'nullifierUsed',
       args: [nullifier],
     });
     return result as boolean;
@@ -170,7 +170,7 @@ export class ContractService {
     const result = await this.publicClient.readContract({
       address: this.contractAddress,
       abi: GELAP_SHIELDED_ACCOUNT_ABI,
-      functionName: "nextLeafIndex",
+      functionName: 'nextLeafIndex',
     });
     return Number(result);
   }
@@ -182,7 +182,7 @@ export class ContractService {
     const result = await this.publicClient.readContract({
       address: this.contractAddress,
       abi: GELAP_SHIELDED_ACCOUNT_ABI,
-      functionName: "zeroHashes",
+      functionName: 'zeroHashes',
       args: [BigInt(level)],
     });
     return result as Hex;
@@ -197,18 +197,18 @@ export class ContractService {
    */
   async approveToken(token: Address, amount: bigint): Promise<Hex> {
     if (!this.walletClient) {
-      throw new Error("Wallet client required for write operations");
+      throw new Error('Wallet client required for write operations');
     }
 
     const [account] = await this.walletClient.getAddresses();
     if (!account) {
-      throw new Error("No account found in wallet");
+      throw new Error('No account found in wallet');
     }
 
     const hash = await this.walletClient.writeContract({
       address: token,
       abi: ERC20_ABI,
-      functionName: "approve",
+      functionName: 'approve',
       args: [this.contractAddress, amount],
       account,
       chain: this.walletClient.chain,
@@ -224,7 +224,7 @@ export class ContractService {
     const result = await this.publicClient.readContract({
       address: token,
       abi: ERC20_ABI,
-      functionName: "allowance",
+      functionName: 'allowance',
       args: [owner, this.contractAddress],
     });
     return result as bigint;
@@ -237,7 +237,7 @@ export class ContractService {
     const result = await this.publicClient.readContract({
       address: token,
       abi: ERC20_ABI,
-      functionName: "balanceOf",
+      functionName: 'balanceOf',
       args: [account],
     });
     return result as bigint;
@@ -248,26 +248,22 @@ export class ContractService {
    */
   async deposit(params: DepositParams): Promise<Hex> {
     if (!this.walletClient) {
-      throw new Error("Wallet client required for write operations");
+      throw new Error('Wallet client required for write operations');
     }
 
     const [account] = await this.walletClient.getAddresses();
     if (!account) {
-      throw new Error("No account found in wallet");
+      throw new Error('No account found in wallet');
     }
 
     const hash = await this.walletClient.writeContract({
       address: this.contractAddress,
       abi: GELAP_SHIELDED_ACCOUNT_ABI,
-      functionName: "deposit",
-      args: [
-        params.token,
-        params.amount,
-        params.commitment,
-        params.encryptedMemo || "0x",
-      ],
+      functionName: 'deposit',
+      args: [params.token, params.amount, params.commitment, params.encryptedMemo || '0x'],
       account,
       chain: this.walletClient.chain,
+      gas: 1000000n, // Higher gas limit for privacy pool operations (Merkle tree + storage)
     });
 
     return hash;
@@ -278,21 +274,22 @@ export class ContractService {
    */
   async transact(params: TransactParams): Promise<Hex> {
     if (!this.walletClient) {
-      throw new Error("Wallet client required for write operations");
+      throw new Error('Wallet client required for write operations');
     }
 
     const [account] = await this.walletClient.getAddresses();
     if (!account) {
-      throw new Error("No account found in wallet");
+      throw new Error('No account found in wallet');
     }
 
     const hash = await this.walletClient.writeContract({
       address: this.contractAddress,
       abi: GELAP_SHIELDED_ACCOUNT_ABI,
-      functionName: "transact",
+      functionName: 'transact',
       args: [params.publicInputs, params.proofBytes],
       account,
       chain: this.walletClient.chain,
+      gas: 800000n, // Higher gas limit for ZK proof verification
     });
 
     return hash;
@@ -303,21 +300,22 @@ export class ContractService {
    */
   async withdraw(params: WithdrawParams): Promise<Hex> {
     if (!this.walletClient) {
-      throw new Error("Wallet client required for write operations");
+      throw new Error('Wallet client required for write operations');
     }
 
     const [account] = await this.walletClient.getAddresses();
     if (!account) {
-      throw new Error("No account found in wallet");
+      throw new Error('No account found in wallet');
     }
 
     const hash = await this.walletClient.writeContract({
       address: this.contractAddress,
       abi: GELAP_SHIELDED_ACCOUNT_ABI,
-      functionName: "withdraw",
+      functionName: 'withdraw',
       args: [params.publicInputs, params.proofBytes, params.receiver],
       account,
       chain: this.walletClient.chain,
+      gas: 800000n, // Higher gas limit for ZK proof verification
     });
 
     return hash;
@@ -328,18 +326,18 @@ export class ContractService {
    */
   async executeSwap(params: SwapParams): Promise<Hex> {
     if (!this.walletClient) {
-      throw new Error("Wallet client required for write operations");
+      throw new Error('Wallet client required for write operations');
     }
 
     const [account] = await this.walletClient.getAddresses();
     if (!account) {
-      throw new Error("No account found in wallet");
+      throw new Error('No account found in wallet');
     }
 
     const hash = await this.walletClient.writeContract({
       address: this.contractAddress,
       abi: GELAP_SHIELDED_ACCOUNT_ABI,
-      functionName: "executeSwap",
+      functionName: 'executeSwap',
       args: [params.publicInputs, params.proofBytes],
       account,
       chain: this.walletClient.chain,
@@ -357,16 +355,16 @@ export class ContractService {
    */
   async getAccountUpdatedEvents(
     fromBlock: bigint = 0n,
-    toBlock: bigint | "latest" = "latest"
+    toBlock: bigint | 'latest' = 'latest',
   ): Promise<AccountUpdatedEvent[]> {
     const logs = await this.publicClient.getLogs({
       address: this.contractAddress,
       event: {
-        type: "event",
-        name: "AccountUpdated",
+        type: 'event',
+        name: 'AccountUpdated',
         inputs: [
-          { type: "bytes32", name: "commitment", indexed: false },
-          { type: "bytes", name: "encryptedMemo", indexed: false },
+          { type: 'bytes32', name: 'commitment', indexed: false },
+          { type: 'bytes', name: 'encryptedMemo', indexed: false },
         ],
       },
       fromBlock,
@@ -386,17 +384,17 @@ export class ContractService {
    */
   async getTransactionExecutedEvents(
     fromBlock: bigint = 0n,
-    toBlock: bigint | "latest" = "latest"
+    toBlock: bigint | 'latest' = 'latest',
   ): Promise<TransactionExecutedEvent[]> {
     const logs = await this.publicClient.getLogs({
       address: this.contractAddress,
       event: {
-        type: "event",
-        name: "TransactionExecuted",
+        type: 'event',
+        name: 'TransactionExecuted',
         inputs: [
-          { type: "bytes32", name: "newRoot", indexed: false },
-          { type: "bytes32[]", name: "nullifiers", indexed: false },
-          { type: "bytes32[]", name: "newCommitments", indexed: false },
+          { type: 'bytes32', name: 'newRoot', indexed: false },
+          { type: 'bytes32[]', name: 'nullifiers', indexed: false },
+          { type: 'bytes32[]', name: 'newCommitments', indexed: false },
         ],
       },
       fromBlock,
@@ -418,17 +416,17 @@ export class ContractService {
   async getWithdrawExecutedEvents(
     receiver?: Address,
     fromBlock: bigint = 0n,
-    toBlock: bigint | "latest" = "latest"
+    toBlock: bigint | 'latest' = 'latest',
   ): Promise<WithdrawExecutedEvent[]> {
     const logs = await this.publicClient.getLogs({
       address: this.contractAddress,
       event: {
-        type: "event",
-        name: "WithdrawExecuted",
+        type: 'event',
+        name: 'WithdrawExecuted',
         inputs: [
-          { type: "address", name: "receiver", indexed: true },
-          { type: "address", name: "token", indexed: true },
-          { type: "uint256", name: "amount", indexed: false },
+          { type: 'address', name: 'receiver', indexed: true },
+          { type: 'address', name: 'token', indexed: true },
+          { type: 'uint256', name: 'amount', indexed: false },
         ],
       },
       args: receiver ? { receiver } : undefined,
@@ -448,10 +446,7 @@ export class ContractService {
   /**
    * Get all commitments from events
    */
-  async getAllCommitments(
-    fromBlock: bigint = 0n,
-    toBlock: bigint | "latest" = "latest"
-  ): Promise<Hex[]> {
+  async getAllCommitments(fromBlock: bigint = 0n, toBlock: bigint | 'latest' = 'latest'): Promise<Hex[]> {
     const events = await this.getAccountUpdatedEvents(fromBlock, toBlock);
     return events.map((e) => e.commitment);
   }
@@ -463,23 +458,18 @@ export class ContractService {
   /**
    * Request a transaction proof from the prover service
    */
-  async requestTransactionProof(
-    request: TransactionProofRequest
-  ): Promise<ProofResponse> {
+  async requestTransactionProof(request: TransactionProofRequest): Promise<ProofResponse> {
     try {
-      const response = await fetch(
-        `${PROVER_API_URL}${PROVER_ENDPOINTS.generateTransactionProof}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(request),
-        }
-      );
+      const response = await fetch(`${PROVER_API_URL}${PROVER_ENDPOINTS.generateTransactionProof}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request),
+      });
 
       if (!response.ok) {
         return {
-          publicInputs: "0x",
-          proofBytes: "0x",
+          publicInputs: '0x',
+          proofBytes: '0x',
           success: false,
           error: `Prover API error: ${response.status}`,
         };
@@ -488,7 +478,7 @@ export class ContractService {
       return await response.json();
     } catch (error) {
       // Mock response for development
-      console.warn("Prover API not available, returning mock proof");
+      console.warn('Prover API not available, returning mock proof');
       return this.generateMockProof();
     }
   }
@@ -496,23 +486,18 @@ export class ContractService {
   /**
    * Request a withdrawal proof from the prover service
    */
-  async requestWithdrawProof(
-    request: WithdrawProofRequest
-  ): Promise<ProofResponse> {
+  async requestWithdrawProof(request: WithdrawProofRequest): Promise<ProofResponse> {
     try {
-      const response = await fetch(
-        `${PROVER_API_URL}${PROVER_ENDPOINTS.generateWithdrawProof}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(request),
-        }
-      );
+      const response = await fetch(`${PROVER_API_URL}${PROVER_ENDPOINTS.generateWithdrawProof}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request),
+      });
 
       if (!response.ok) {
         return {
-          publicInputs: "0x",
-          proofBytes: "0x",
+          publicInputs: '0x',
+          proofBytes: '0x',
           success: false,
           error: `Prover API error: ${response.status}`,
         };
@@ -521,7 +506,7 @@ export class ContractService {
       return await response.json();
     } catch (error) {
       // Mock response for development
-      console.warn("Prover API not available, returning mock proof");
+      console.warn('Prover API not available, returning mock proof');
       return this.generateMockProof();
     }
   }
@@ -532,10 +517,10 @@ export class ContractService {
    */
   private generateMockProof(): ProofResponse {
     return {
-      publicInputs: ("0x" + "00".repeat(128)) as Hex,
-      proofBytes: ("0x" + "00".repeat(256)) as Hex,
+      publicInputs: ('0x' + '00'.repeat(128)) as Hex,
+      proofBytes: ('0x' + '00'.repeat(256)) as Hex,
       success: true,
-      error: "MOCK_PROOF - Will not verify on-chain",
+      error: 'MOCK_PROOF - Will not verify on-chain',
     };
   }
 
@@ -555,7 +540,7 @@ export class ContractService {
     });
 
     return {
-      success: receipt.status === "success",
+      success: receipt.status === 'success',
       blockNumber: receipt.blockNumber,
     };
   }
@@ -581,7 +566,7 @@ export class ContractService {
 export function createContractService(
   publicClient: PublicClient,
   walletClient?: WalletClient,
-  chainId?: number
+  chainId?: number,
 ): ContractService {
   return new ContractService(publicClient, walletClient, chainId);
 }
