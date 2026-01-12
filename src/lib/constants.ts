@@ -38,28 +38,28 @@ export interface TokenInfo {
 
 export const SUPPORTED_TOKENS: Record<number, TokenInfo[]> = {
   [mantleSepoliaTestnet.id]: [
-    // IMPORTANT: Replace these with actual token addresses
-    // You can deploy a test ERC20 or use existing tokens on Mantle Sepolia
+    // Only ERC20 tokens can be deposited to the shielded pool
+    // Native MNT cannot be deposited directly (shown separately as WMNT balance)
     {
-      address: "0x65e37B558F64E2Be5768DB46DF22F93d85741A9E" as Address, // SepoliaMantle
+      address: "0x65e37B558F64E2Be5768DB46DF22F93d85741A9E" as Address,
       symbol: "SepMNT",
-      name: "Sepolia MNT",
+      name: "Sepolia Mantle Token",
       decimals: 18,
     },
   ],
   [mantle.id]: [
     {
-      address: "0xC17B4eb66bA71b32c7567083ef0f9D7faEa3A748" as Address, // WMNT on Mantle
-      symbol: "MNT",
-      name: "Mantle Testnet Token",
+      address: "0x65e37B558F64E2Be5768DB46DF22F93d85741A9E" as Address,
+      symbol: "SepMNT",
+      name: "Sepolia Mantle Token",
       decimals: 18,
     },
   ],
   [sepolia.id]: [
     {
-      address: "0x65e37B558F64E2Be5768DB46DF22F93d85741A9E" as Address, // SepoliaMantle
+      address: "0x65e37B558F64E2Be5768DB46DF22F93d85741A9E" as Address,
       symbol: "SepMNT",
-      name: "Sepolia MNT",
+      name: "Sepolia Mantle Token",
       decimals: 18,
     },
   ],

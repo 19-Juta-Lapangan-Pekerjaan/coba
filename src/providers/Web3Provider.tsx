@@ -31,7 +31,7 @@ const queryClient = new QueryClient();
 const config = getDefaultConfig({
   appName: "Gelap",
   projectId: "f8aabd752876f7f9ef70f2ed2ff74639", // Can be replaced with other walletconnect project IDs
-  chains: [mainnet, sepolia, mantleSepoliaTestnet, mantle],
+  chains: [mainnet, sepolia, mantle, mantleSepoliaTestnet],
   ssr: false,
 });
 

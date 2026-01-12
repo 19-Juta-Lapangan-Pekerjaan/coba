@@ -4,7 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import { useApp, AppTab } from "@/src/contexts/AppContext";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount, useBalance, useDisconnect } from "wagmi";
-import { mainnet, base, arbitrum, mantle, sepolia } from "wagmi/chains";
+import { mainnet, base, arbitrum, sepolia } from "wagmi/chains";
+import { mantle, mantleSepoliaTestnet } from "@mantleio/viem/chains";
 import Image from "next/image";
 import Link from "next/link";
 import * as motion from "motion/react-client";
@@ -35,6 +36,11 @@ const supportedChains = [
   { chain: base, name: "BASE", color: "bg-blue-600" },
   { chain: arbitrum, name: "ARBITRUM", color: "bg-blue-400" },
   { chain: mantle, name: "MANTLE", color: "bg-emerald-500" },
+  {
+    chain: mantleSepoliaTestnet,
+    name: "MANTLE TESTNET",
+    color: "bg-emerald-500",
+  },
   { chain: sepolia, name: "SEPOLIA", color: "bg-purple-500" },
 ];
 
@@ -56,6 +62,10 @@ export default function AppNavbar() {
   });
   const { data: mantleBalance } = useBalance({ address, chainId: mantle.id });
   const { data: sepoliaBalance } = useBalance({ address, chainId: sepolia.id });
+  const { data: mantleSepoliaTestnetBalance } = useBalance({
+    address,
+    chainId: mantleSepoliaTestnet.id,
+  });
 
   // Combine all balances
   const allBalances = [
@@ -63,7 +73,8 @@ export default function AppNavbar() {
     { ...supportedChains[1], balance: baseBalance },
     { ...supportedChains[2], balance: arbitrumBalance },
     { ...supportedChains[3], balance: mantleBalance },
-    { ...supportedChains[4], balance: sepoliaBalance },
+    { ...supportedChains[4], balance: mantleSepoliaTestnetBalance },
+    { ...supportedChains[5], balance: sepoliaBalance },
   ].filter((b) => b.balance && parseFloat(b.balance.formatted) > 0);
 
   // Calculate total USD value

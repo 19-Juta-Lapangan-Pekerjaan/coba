@@ -72,10 +72,16 @@ export default function Deposit() {
     isDepositing: false,
   });
 
-  // Token balance
+  // Token balance (ERC20)
   const { data: tokenBalance, refetch: refetchBalance } = useBalance({
     address,
     token: state.selectedToken?.address as Address | undefined,
+  });
+
+  // Native token balance (MNT on Mantle Sepolia)
+  const { data: nativeBalance } = useBalance({
+    address,
+    // No token param = native balance
   });
 
   // =========================================================================
@@ -96,21 +102,13 @@ export default function Deposit() {
   }, [chainId]);
 
   const parseAmount = useCallback(() => {
-    console.log("PARSE AMOUNT CALLED", !state.amount || !state.selectedToken);
     if (!state.amount || !state.selectedToken) return 0n;
     try {
-      console.log(
-        "PARSE AMOUNT",
-        state.amount,
-        state.selectedToken.decimals,
-        parseUnits(state.amount, state.selectedToken.decimals)
-      );
       return parseUnits(state.amount, state.selectedToken.decimals);
     } catch {
       return 0n;
     }
   }, [state.amount, state.selectedToken]);
-  console.log("STATE", state, parseAmount());
 
   const formatBalance = useCallback(() => {
     if (!tokenBalance) return "0";
@@ -292,6 +290,17 @@ export default function Deposit() {
   }, [tokens]);
 
   // =========================================================================
+  // Effects
+  // =========================================================================
+
+  // Refetch balance when selected token changes
+  useEffect(() => {
+    if (state.selectedToken) {
+      refetchBalance();
+    }
+  }, [state.selectedToken, refetchBalance]);
+
+  // =========================================================================
   // Render
   // =========================================================================
 
@@ -426,6 +435,11 @@ export default function Deposit() {
               <p className="text-zinc-600 text-xs mt-2">
                 Balance: {formatBalance()} {state.selectedToken?.symbol}
               </p>
+              {nativeBalance && (
+                <p className="text-zinc-500 text-xs mt-1">
+                  WMNT: {nativeBalance.formatted} {nativeBalance.symbol}
+                </p>
+              )}
             </div>
 
             {/* Info Box */}

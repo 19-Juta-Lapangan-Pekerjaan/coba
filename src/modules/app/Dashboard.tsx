@@ -19,9 +19,17 @@ import { SUPPORTED_TOKENS, DEFAULT_CHAIN_ID } from "@/src/lib/constants";
 import { useTreasuryRates } from "@/src/hooks/useTreasuryRates";
 
 function WalletGenerationStepper() {
-  const { walletGenerationSteps, privacyWalletGenerated, resetWalletGeneration, startWalletGeneration, isGeneratingWallet } = useApp();
+  const {
+    walletGenerationSteps,
+    privacyWalletGenerated,
+    resetWalletGeneration,
+    startWalletGeneration,
+    isGeneratingWallet,
+  } = useApp();
 
-  const hasError = walletGenerationSteps.some((step) => step.status === "error");
+  const hasError = walletGenerationSteps.some(
+    (step) => step.status === "error"
+  );
 
   const handleRetry = () => {
     resetWalletGeneration();
@@ -68,15 +76,19 @@ function WalletGenerationStepper() {
                   step.status === "complete"
                     ? "text-green-400"
                     : step.status === "loading"
-                      ? "text-white"
-                      : step.status === "error"
-                        ? "text-red-400"
-                        : "text-zinc-500"
+                    ? "text-white"
+                    : step.status === "error"
+                    ? "text-red-400"
+                    : "text-zinc-500"
                 }`}
               >
                 {step.title}
               </p>
-              <p className={`text-sm mt-0.5 ${step.status === "error" ? "text-red-400/70" : "text-zinc-500"}`}>
+              <p
+                className={`text-sm mt-0.5 ${
+                  step.status === "error" ? "text-red-400/70" : "text-zinc-500"
+                }`}
+              >
                 {step.description}
               </p>
             </div>
@@ -151,7 +163,7 @@ export default function Dashboard() {
 
     let totalValue = 0;
     const entries = Array.from(balanceByToken.entries());
-    
+
     entries.forEach(([tokenAddress, balance]) => {
       const token = tokens.find(
         (t) => t.address.toLowerCase() === tokenAddress.toLowerCase()
@@ -182,17 +194,22 @@ export default function Dashboard() {
       }
     });
 
-    // If no shielded holdings, show placeholder
+    // If no shielded holdings, show placeholder with formatted balance
     if (result.length === 0 && shieldedBalance > 0n) {
+      // Use first token's decimals as default, or 18 if no tokens
+      const defaultDecimals = tokens[0]?.decimals ?? 18;
+      const formattedBalance = Number(
+        formatUnits(shieldedBalance, defaultDecimals)
+      );
       result.push({
         id: 1,
-        instrument: "SHIELDED",
-        description: "Private Assets",
+        instrument: tokens[0]?.symbol ?? "SHIELDED",
+        description: tokens[0]?.name ?? "Private Assets",
         type: "SHIELDED",
         typeColor: "bg-purple-600",
         yieldApy: 0,
-        position: Number(shieldedBalance),
-        valueUsd: Number(shieldedBalance),
+        position: formattedBalance,
+        valueUsd: formattedBalance,
         allocPercent: 100,
       });
     }
@@ -205,15 +222,26 @@ export default function Dashboard() {
 
   // Build execution log from notes
   const executionLog = useMemo(() => {
-    return unspentNotes.slice(0, 5).map((note, index) => ({
-      id: index + 1,
-      type: "DEPOSIT" as const,
-      title: "Shielded Deposit",
-      counterparty: "Self",
-      amount: `+${formatUnits(note.amount, 6)} tokens`,
-      timestamp: new Date(Number(note.blockNumber) * 1000).toLocaleTimeString(),
-    }));
-  }, [unspentNotes]);
+    return unspentNotes.slice(0, 5).map((note, index) => {
+      // Find the token for this note to get proper decimals
+      const token = tokens.find(
+        (t) => t.address.toLowerCase() === note.token.toLowerCase()
+      );
+      const decimals = token?.decimals ?? 18;
+      const symbol = token?.symbol ?? "tokens";
+
+      return {
+        id: index + 1,
+        type: "DEPOSIT" as const,
+        title: "Shielded Deposit",
+        counterparty: "Self",
+        amount: `+${formatUnits(note.amount, decimals)} ${symbol}`,
+        timestamp: new Date(
+          Number(note.blockNumber) * 1000
+        ).toLocaleTimeString(),
+      };
+    });
+  }, [unspentNotes, tokens]);
 
   // Start wallet generation when connected
   useEffect(() => {
@@ -254,14 +282,18 @@ export default function Dashboard() {
               className="text-zinc-500 hover:text-white transition-colors"
             >
               <RefreshCw
-                className={`w-4 h-4 ${(isLoadingBalance || isSyncing) ? "animate-spin" : ""}`}
+                className={`w-4 h-4 ${
+                  isLoadingBalance || isSyncing ? "animate-spin" : ""
+                }`}
               />
             </button>
           </div>
           <div className="flex items-baseline gap-2 mb-4">
             <span className="text-3xl font-bold text-white">
               {totalNav > 0
-                ? `$${totalNav.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
+                ? `$${totalNav.toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                  })}`
                 : "$0.00"}
             </span>
             {totalNav > 0 && (
@@ -282,7 +314,7 @@ export default function Dashboard() {
               <p className="text-purple-400">● Full</p>
             </div>
           </div>
-          
+
           {/* Quick Actions */}
           <div className="flex gap-2 mt-4 pt-4 border-t border-zinc-800">
             <button
@@ -325,7 +357,9 @@ export default function Dashboard() {
             </div>
             <div className="flex justify-between">
               <span className="text-zinc-500">Commitments</span>
-              <span className="text-purple-400">{unspentNotes.length} UTXO</span>
+              <span className="text-purple-400">
+                {unspentNotes.length} UTXO
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-zinc-500">ZK Proofs</span>
@@ -392,7 +426,7 @@ export default function Dashboard() {
               + Add Funds
             </button>
           </div>
-          
+
           {holdings.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -407,7 +441,10 @@ export default function Dashboard() {
                 </thead>
                 <tbody>
                   {holdings.map((holding) => (
-                    <tr key={holding.id} className="border-b border-zinc-800/50">
+                    <tr
+                      key={holding.id}
+                      className="border-b border-zinc-800/50"
+                    >
                       <td className="py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 bg-zinc-800 rounded-full flex items-center justify-center text-xs font-bold text-white">
@@ -434,7 +471,8 @@ export default function Dashboard() {
                         {holding.position.toLocaleString()}
                       </td>
                       <td className="py-4 text-right text-cyan-400">
-                        ${holding.valueUsd.toLocaleString("en-US", {
+                        $
+                        {holding.valueUsd.toLocaleString("en-US", {
                           minimumFractionDigits: 2,
                         })}
                       </td>
@@ -471,7 +509,7 @@ export default function Dashboard() {
             <h3 className="text-white font-semibold">RECENT ACTIVITY</h3>
             <span className="text-zinc-600 text-xs">...</span>
           </div>
-          
+
           {executionLog.length > 0 ? (
             <div className="space-y-4">
               {executionLog.map((log) => (
@@ -486,8 +524,8 @@ export default function Dashboard() {
                           log.type === "DEPOSIT"
                             ? "bg-green-500/20 text-green-400"
                             : log.type === "TRANSFER"
-                              ? "bg-blue-500/20 text-blue-400"
-                              : "bg-purple-500/20 text-purple-400"
+                            ? "bg-blue-500/20 text-blue-400"
+                            : "bg-purple-500/20 text-purple-400"
                         }`}
                       >
                         {log.type}
@@ -497,9 +535,7 @@ export default function Dashboard() {
                       </span>
                     </div>
                     <p className="text-white text-sm">{log.title}</p>
-                    <p className="text-zinc-500 text-xs">
-                      {log.counterparty}
-                    </p>
+                    <p className="text-zinc-500 text-xs">{log.counterparty}</p>
                   </div>
                   <div className="text-right">
                     <p
@@ -507,8 +543,8 @@ export default function Dashboard() {
                         log.amount.startsWith("+")
                           ? "text-green-400"
                           : log.amount.startsWith("-")
-                            ? "text-red-400"
-                            : "text-white"
+                          ? "text-red-400"
+                          : "text-white"
                       }`}
                     >
                       {log.amount}
@@ -522,7 +558,7 @@ export default function Dashboard() {
               <p className="text-zinc-500 text-sm">No recent activity</p>
             </div>
           )}
-          
+
           <button className="w-full mt-4 py-2 text-zinc-500 text-sm hover:text-zinc-400 transition-colors">
             VIEW FULL HISTORY
           </button>
