@@ -215,9 +215,18 @@ function generateMockKeyImage(prefix = 'key_image'): `0x${string}` {
  * Generates mock proof bytes (can be any valid hex when using MockSP1Verifier)
  */
 function generateMockProofBytes(type: string): `0x${string}` {
-  const timestamp = Date.now().toString(16);
-  const random = Math.floor(Math.random() * 0xffffffff).toString(16);
-  return `0x${type}${timestamp}${random}` as `0x${string}`;
+  // Convert type string to hex bytes (e.g., "transact" -> "7472616e73616374")
+  const typeHex = Array.from(type)
+    .map((char) => char.charCodeAt(0).toString(16).padStart(2, '0'))
+    .join('');
+
+  const timestamp = Date.now().toString(16).padStart(16, '0');
+  const random = Math.floor(Math.random() * 0xffffffff)
+    .toString(16)
+    .padStart(8, '0');
+
+  // Create a valid 256-byte proof (512 hex chars)
+  return `0x${typeHex}${timestamp}${random}`.padEnd(514, '0') as `0x${string}`;
 }
 
 // ============================================================================
