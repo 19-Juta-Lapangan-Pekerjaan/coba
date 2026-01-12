@@ -45,7 +45,7 @@ export default function Trade() {
         </div>
         <div className="flex items-center gap-2">
           <span className="px-3 py-1 bg-cyan-500/20 text-cyan-400 text-xs rounded border border-cyan-500/30">
-            TEE ENCLAVE: ACTIVE
+            SP1 ENCLAVE: ACTIVE
           </span>
           <span className="px-3 py-1 bg-green-500/20 text-green-400 text-xs rounded border border-green-500/30">
             MEV PROTECTION: ON
@@ -221,7 +221,8 @@ export default function Trade() {
 
             <p className="text-xs text-zinc-600 mt-4">
               Liquidity is aggregated from institutional dark pools. Execution
-              is guaranteed via the TEE enclave without pre-trade linkage.
+              is verified via SP1 ZK proofs ensuring privacy without pre-trade
+              linkage.
             </p>
           </div>
 
@@ -235,7 +236,7 @@ export default function Trade() {
               </div>
               <div className="flex justify-between">
                 <span className="text-zinc-500">Venue</span>
-                <span className="text-cyan-400">Gelap SG-1 Enclave</span>
+                <span className="text-cyan-400">Gelap SP-1 Enclave</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-zinc-500">Fees</span>

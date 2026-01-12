@@ -1,20 +1,38 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { useAccount, useBalance, usePublicClient, useWalletClient } from 'wagmi';
-import * as motion from 'motion/react-client';
-import { Shield, Wallet, ArrowDown, Check, Loader2, AlertCircle, ExternalLink, Copy } from 'lucide-react';
-import { type Address, type Hex, formatUnits, parseUnits } from 'viem';
+import { useState, useEffect, useCallback } from "react";
+import {
+  useAccount,
+  useBalance,
+  usePublicClient,
+  useWalletClient,
+} from "wagmi";
+import * as motion from "motion/react-client";
+import {
+  Shield,
+  Wallet,
+  ArrowDown,
+  Check,
+  Loader2,
+  AlertCircle,
+  ExternalLink,
+} from "lucide-react";
+import { type Address, type Hex, formatUnits, parseUnits } from "viem";
 
-import { useApp } from '@/src/contexts/AppContext';
-import { SUPPORTED_TOKENS, ERC20_ABI, CONTRACT_ADDRESSES, DEFAULT_CHAIN_ID } from '@/src/lib/constants';
-import type { TokenInfo } from '@/src/lib/constants';
+import { useApp } from "@/src/contexts/AppContext";
+import {
+  SUPPORTED_TOKENS,
+  ERC20_ABI,
+  CONTRACT_ADDRESSES,
+  DEFAULT_CHAIN_ID,
+} from "@/src/lib/constants";
+import type { TokenInfo } from "@/src/lib/constants";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-type DepositStep = 'input' | 'approve' | 'deposit' | 'success';
+type DepositStep = "input" | "approve" | "deposit" | "success";
 
 interface DepositState {
   step: DepositStep;
@@ -43,9 +61,9 @@ export default function Deposit() {
 
   // Local state
   const [state, setState] = useState<DepositState>({
-    step: 'input',
+    step: "input",
     selectedToken: tokens[0] ?? null,
-    amount: '',
+    amount: "",
     commitment: null,
     approveTxHash: null,
     depositTxHash: null,
@@ -69,21 +87,33 @@ export default function Deposit() {
   }, []);
 
   const getContractAddress = useCallback(() => {
-    const addresses = CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES];
-    return addresses?.gelapShieldedAccount ?? CONTRACT_ADDRESSES[DEFAULT_CHAIN_ID].gelapShieldedAccount;
+    const addresses =
+      CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES];
+    return (
+      addresses?.gelapShieldedAccount ??
+      CONTRACT_ADDRESSES[DEFAULT_CHAIN_ID].gelapShieldedAccount
+    );
   }, [chainId]);
 
   const parseAmount = useCallback(() => {
+    console.log("PARSE AMOUNT CALLED", !state.amount || !state.selectedToken);
     if (!state.amount || !state.selectedToken) return 0n;
     try {
+      console.log(
+        "PARSE AMOUNT",
+        state.amount,
+        state.selectedToken.decimals,
+        parseUnits(state.amount, state.selectedToken.decimals)
+      );
       return parseUnits(state.amount, state.selectedToken.decimals);
     } catch {
       return 0n;
     }
   }, [state.amount, state.selectedToken]);
+  console.log("STATE", state, parseAmount());
 
   const formatBalance = useCallback(() => {
-    if (!tokenBalance) return '0';
+    if (!tokenBalance) return "0";
     return formatUnits(tokenBalance.value, tokenBalance.decimals);
   }, [tokenBalance]);
 
@@ -98,12 +128,12 @@ export default function Deposit() {
       const allowance = await publicClient.readContract({
         address: state.selectedToken.address,
         abi: ERC20_ABI,
-        functionName: 'allowance',
+        functionName: "allowance",
         args: [address, getContractAddress()],
       });
       return allowance as bigint;
     } catch (error) {
-      console.error('Failed to check allowance:', error);
+      console.error("Failed to check allowance:", error);
       return 0n;
     }
   }, [publicClient, address, state.selectedToken, getContractAddress]);
@@ -117,7 +147,7 @@ export default function Deposit() {
 
     const amount = parseAmount();
     if (amount === 0n) {
-      updateState({ error: 'Invalid amount' });
+      updateState({ error: "Invalid amount" });
       return;
     }
 
@@ -127,7 +157,7 @@ export default function Deposit() {
       const hash = await walletClient.writeContract({
         address: state.selectedToken.address,
         abi: ERC20_ABI,
-        functionName: 'approve',
+        functionName: "approve",
         args: [getContractAddress(), amount],
         account: address!,
         chain: walletClient.chain,
@@ -138,30 +168,44 @@ export default function Deposit() {
       // Wait for confirmation
       const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
-      if (receipt.status === 'success') {
-        updateState({ step: 'deposit', isApproving: false });
+      if (receipt.status === "success") {
+        updateState({ step: "deposit", isApproving: false });
       } else {
-        updateState({ error: 'Approval failed', isApproving: false });
+        updateState({ error: "Approval failed", isApproving: false });
       }
     } catch (error) {
-      console.error('Approval failed:', error);
+      console.error("Approval failed:", error);
       updateState({
-        error: error instanceof Error ? error.message : 'Approval failed',
+        error: error instanceof Error ? error.message : "Approval failed",
         isApproving: false,
       });
     }
-  }, [walletClient, publicClient, state.selectedToken, address, parseAmount, getContractAddress, updateState]);
+  }, [
+    walletClient,
+    publicClient,
+    state.selectedToken,
+    address,
+    parseAmount,
+    getContractAddress,
+    updateState,
+  ]);
 
   // =========================================================================
   // Execute Deposit
   // =========================================================================
 
   const handleDeposit = useCallback(async () => {
-    if (!walletClient || !publicClient || !privacyWallet || !state.selectedToken) return;
+    if (
+      !walletClient ||
+      !publicClient ||
+      !privacyWallet ||
+      !state.selectedToken
+    )
+      return;
 
     const amount = parseAmount();
     if (amount === 0n) {
-      updateState({ error: 'Invalid amount' });
+      updateState({ error: "Invalid amount" });
       return;
     }
 
@@ -173,11 +217,15 @@ export default function Deposit() {
       updateState({ commitment: commitmentData.commitment });
 
       // Execute deposit
-      const { txHash } = await privacyWallet.executeDeposit(state.selectedToken.address, amount, commitmentData);
+      const { txHash } = await privacyWallet.executeDeposit(
+        state.selectedToken.address,
+        amount,
+        commitmentData
+      );
 
       updateState({
         depositTxHash: txHash,
-        step: 'success',
+        step: "success",
         isDepositing: false,
       });
 
@@ -185,9 +233,9 @@ export default function Deposit() {
       await refreshBalance();
       refetchBalance();
     } catch (error) {
-      console.error('Deposit failed:', error);
+      console.error("Deposit failed:", error);
       updateState({
-        error: error instanceof Error ? error.message : 'Deposit failed',
+        error: error instanceof Error ? error.message : "Deposit failed",
         isDepositing: false,
       });
     }
@@ -209,7 +257,7 @@ export default function Deposit() {
   const handleContinue = useCallback(async () => {
     const amount = parseAmount();
     if (amount === 0n) {
-      updateState({ error: 'Please enter a valid amount' });
+      updateState({ error: "Please enter a valid amount" });
       return;
     }
 
@@ -218,10 +266,10 @@ export default function Deposit() {
 
     if (currentAllowance >= amount) {
       // Already approved, go to deposit
-      updateState({ step: 'deposit' });
+      updateState({ step: "deposit" });
     } else {
       // Need approval
-      updateState({ step: 'approve' });
+      updateState({ step: "approve" });
     }
   }, [parseAmount, checkAllowance, updateState]);
 
@@ -231,9 +279,9 @@ export default function Deposit() {
 
   const handleReset = useCallback(() => {
     setState({
-      step: 'input',
+      step: "input",
       selectedToken: tokens[0] ?? null,
-      amount: '',
+      amount: "",
       commitment: null,
       approveTxHash: null,
       depositTxHash: null,
@@ -249,43 +297,50 @@ export default function Deposit() {
 
   if (!isConnected) {
     return (
-      <div className='p-6 max-w-xl mx-auto'>
-        <div className='bg-zinc-900/50 border border-zinc-800 rounded-xl p-8 text-center'>
-          <Wallet className='w-12 h-12 text-zinc-600 mx-auto mb-4' />
-          <h2 className='text-lg font-semibold text-white mb-2'>Connect Wallet</h2>
-          <p className='text-zinc-500 text-sm'>Please connect your wallet to deposit funds into the shielded pool.</p>
+      <div className="p-6 max-w-xl mx-auto">
+        <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-8 text-center">
+          <Wallet className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
+          <h2 className="text-lg font-semibold text-white mb-2">
+            Connect Wallet
+          </h2>
+          <p className="text-zinc-500 text-sm">
+            Please connect your wallet to deposit funds into the shielded pool.
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className='p-6 max-w-xl mx-auto'>
+    <div className="p-6 max-w-xl mx-auto">
       {/* Header */}
-      <div className='flex items-center justify-between mb-6'>
-        <h1 className='text-xl font-bold text-white'>SHIELD DEPOSIT</h1>
-        <span className='px-3 py-1 bg-purple-500/20 text-purple-400 text-xs rounded border border-purple-500/30 flex items-center gap-1'>
-          <Shield className='w-3 h-3' />
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-xl font-bold text-white">SHIELD DEPOSIT</h1>
+        <span className="px-3 py-1 bg-purple-500/20 text-purple-400 text-xs rounded border border-purple-500/30 flex items-center gap-1">
+          <Shield className="w-3 h-3" />
           PRIVATE
         </span>
       </div>
 
       {/* Progress Steps */}
-      <div className='flex items-center gap-2 mb-8'>
-        {['input', 'approve', 'deposit', 'success'].map((step, index) => (
-          <div key={step} className='flex items-center gap-2 flex-1'>
+      <div className="flex items-center gap-2 mb-8">
+        {["input", "approve", "deposit", "success"].map((step, index) => (
+          <div key={step} className="flex items-center gap-2 flex-1">
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
                 state.step === step
-                  ? 'bg-purple-500 text-white'
-                  : ['approve', 'deposit', 'success'].indexOf(state.step) >
-                    ['approve', 'deposit', 'success'].indexOf(step as DepositStep)
-                  ? 'bg-green-500 text-white'
-                  : 'bg-zinc-800 text-zinc-500'
-              }`}>
-              {['approve', 'deposit', 'success'].indexOf(state.step) >
-              ['approve', 'deposit', 'success'].indexOf(step as DepositStep) ? (
-                <Check className='w-4 h-4' />
+                  ? "bg-purple-500 text-white"
+                  : ["approve", "deposit", "success"].indexOf(state.step) >
+                    ["approve", "deposit", "success"].indexOf(
+                      step as DepositStep
+                    )
+                  ? "bg-green-500 text-white"
+                  : "bg-zinc-800 text-zinc-500"
+              }`}
+            >
+              {["approve", "deposit", "success"].indexOf(state.step) >
+              ["approve", "deposit", "success"].indexOf(step as DepositStep) ? (
+                <Check className="w-4 h-4" />
               ) : (
                 index + 1
               )}
@@ -293,7 +348,9 @@ export default function Deposit() {
             {index < 3 && (
               <div
                 className={`flex-1 h-0.5 ${
-                  ['approve', 'deposit', 'success'].indexOf(state.step) > index ? 'bg-green-500' : 'bg-zinc-800'
+                  ["approve", "deposit", "success"].indexOf(state.step) > index
+                    ? "bg-green-500"
+                    : "bg-zinc-800"
                 }`}
               />
             )}
@@ -305,28 +362,34 @@ export default function Deposit() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className='bg-zinc-900/50 border border-zinc-800 rounded-xl p-6'>
+        className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6"
+      >
         {/* Step: Input */}
-        {state.step === 'input' && (
+        {state.step === "input" && (
           <>
             {/* Token Selection */}
-            <div className='mb-6'>
-              <label className='block text-zinc-500 text-sm mb-2'>SELECT TOKEN</label>
-              <div className='flex gap-2'>
+            <div className="mb-6">
+              <label className="block text-zinc-500 text-sm mb-2">
+                SELECT TOKEN
+              </label>
+              <div className="flex gap-2">
                 {tokens.map((token) => (
                   <button
                     key={token.address}
                     onClick={() => updateState({ selectedToken: token })}
                     className={`flex-1 p-3 rounded-lg border transition-all ${
                       state.selectedToken?.address === token.address
-                        ? 'border-purple-500 bg-purple-500/10'
-                        : 'border-zinc-700 bg-zinc-800/50 hover:border-zinc-600'
-                    }`}>
-                    <div className='flex items-center justify-center gap-2'>
-                      <div className='w-6 h-6 bg-zinc-700 rounded-full flex items-center justify-center text-xs font-bold text-white'>
+                        ? "border-purple-500 bg-purple-500/10"
+                        : "border-zinc-700 bg-zinc-800/50 hover:border-zinc-600"
+                    }`}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-6 h-6 bg-zinc-700 rounded-full flex items-center justify-center text-xs font-bold text-white">
                         {token.symbol.charAt(0)}
                       </div>
-                      <span className='text-white font-medium'>{token.symbol}</span>
+                      <span className="text-white font-medium">
+                        {token.symbol}
+                      </span>
                     </div>
                   </button>
                 ))}
@@ -334,39 +397,49 @@ export default function Deposit() {
             </div>
 
             {/* Amount Input */}
-            <div className='mb-6'>
-              <label className='block text-zinc-500 text-sm mb-2'>AMOUNT TO DEPOSIT</label>
-              <div className='relative'>
+            <div className="mb-6">
+              <label className="block text-zinc-500 text-sm mb-2">
+                AMOUNT TO DEPOSIT
+              </label>
+              <div className="relative">
                 <input
-                  type='text'
+                  type="text"
                   value={state.amount}
-                  onChange={(e) => updateState({ amount: e.target.value, error: null })}
-                  placeholder='0.00'
-                  className='w-full bg-zinc-800/80 border border-zinc-700 rounded-lg px-4 py-4 pr-24 text-2xl text-white placeholder-zinc-600 focus:outline-none focus:border-purple-500 transition-colors'
+                  onChange={(e) =>
+                    updateState({ amount: e.target.value, error: null })
+                  }
+                  placeholder="0.00"
+                  className="w-full bg-zinc-800/80 border border-zinc-700 rounded-lg px-4 py-4 pr-24 text-2xl text-white placeholder-zinc-600 focus:outline-none focus:border-purple-500 transition-colors"
                 />
-                <div className='absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2'>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
                   <button
                     onClick={() => updateState({ amount: formatBalance() })}
-                    className='text-purple-400 text-xs hover:text-purple-300'>
+                    className="text-purple-400 text-xs hover:text-purple-300"
+                  >
                     MAX
                   </button>
-                  <span className='text-zinc-500'>{state.selectedToken?.symbol}</span>
+                  <span className="text-zinc-500">
+                    {state.selectedToken?.symbol}
+                  </span>
                 </div>
               </div>
-              <p className='text-zinc-600 text-xs mt-2'>
+              <p className="text-zinc-600 text-xs mt-2">
                 Balance: {formatBalance()} {state.selectedToken?.symbol}
               </p>
             </div>
 
             {/* Info Box */}
-            <div className='bg-zinc-800/50 border border-zinc-700 rounded-lg p-4 mb-6'>
-              <div className='flex items-start gap-3'>
-                <Shield className='w-5 h-5 text-purple-400 mt-0.5' />
+            <div className="bg-zinc-800/50 border border-zinc-700 rounded-lg p-4 mb-6">
+              <div className="flex items-start gap-3">
+                <Shield className="w-5 h-5 text-purple-400 mt-0.5" />
                 <div>
-                  <p className='text-white text-sm font-medium mb-1'>What happens when you deposit?</p>
-                  <p className='text-zinc-500 text-xs'>
-                    Your tokens are transferred to the shielded pool. A cryptographic commitment is created that only
-                    you can spend. Your balance becomes invisible to the public.
+                  <p className="text-white text-sm font-medium mb-1">
+                    What happens when you deposit?
+                  </p>
+                  <p className="text-zinc-500 text-xs">
+                    Your tokens are transferred to the shielded pool. A
+                    cryptographic commitment is created that only you can spend.
+                    Your balance becomes invisible to the public.
                   </p>
                 </div>
               </div>
@@ -374,9 +447,9 @@ export default function Deposit() {
 
             {/* Error */}
             {state.error && (
-              <div className='bg-red-500/10 border border-red-500/30 rounded-lg p-3 mb-4 flex items-center gap-2'>
-                <AlertCircle className='w-4 h-4 text-red-400' />
-                <span className='text-red-400 text-sm'>{state.error}</span>
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 mb-4 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-red-400" />
+                <span className="text-red-400 text-sm">{state.error}</span>
               </div>
             )}
 
@@ -386,42 +459,46 @@ export default function Deposit() {
               whileTap={{ scale: 0.99 }}
               onClick={handleContinue}
               disabled={!state.amount || parseAmount() === 0n}
-              className='w-full py-4 bg-purple-600 hover:bg-purple-500 disabled:bg-zinc-800 disabled:text-zinc-500 rounded-xl text-white font-medium transition-all'>
+              className="w-full py-4 bg-purple-600 hover:bg-purple-500 disabled:bg-zinc-800 disabled:text-zinc-500 rounded-xl text-white font-medium transition-all"
+            >
               CONTINUE
             </motion.button>
           </>
         )}
 
         {/* Step: Approve */}
-        {state.step === 'approve' && (
+        {state.step === "approve" && (
           <>
-            <div className='text-center mb-6'>
-              <div className='w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4'>
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 {state.isApproving ? (
-                  <Loader2 className='w-8 h-8 text-purple-400 animate-spin' />
+                  <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
                 ) : (
-                  <Check className='w-8 h-8 text-purple-400' />
+                  <Check className="w-8 h-8 text-purple-400" />
                 )}
               </div>
-              <h2 className='text-lg font-semibold text-white mb-2'>Approve Token Spending</h2>
-              <p className='text-zinc-500 text-sm'>
-                Allow the Gelap contract to transfer your {state.selectedToken?.symbol}.
+              <h2 className="text-lg font-semibold text-white mb-2">
+                Approve Token Spending
+              </h2>
+              <p className="text-zinc-500 text-sm">
+                Allow the Gelap contract to transfer your{" "}
+                {state.selectedToken?.symbol}.
               </p>
             </div>
 
-            <div className='bg-zinc-800/50 border border-zinc-700 rounded-lg p-4 mb-6'>
-              <div className='flex justify-between text-sm'>
-                <span className='text-zinc-500'>Amount</span>
-                <span className='text-white'>
+            <div className="bg-zinc-800/50 border border-zinc-700 rounded-lg p-4 mb-6">
+              <div className="flex justify-between text-sm">
+                <span className="text-zinc-500">Amount</span>
+                <span className="text-white">
                   {state.amount} {state.selectedToken?.symbol}
                 </span>
               </div>
             </div>
 
             {state.error && (
-              <div className='bg-red-500/10 border border-red-500/30 rounded-lg p-3 mb-4 flex items-center gap-2'>
-                <AlertCircle className='w-4 h-4 text-red-400' />
-                <span className='text-red-400 text-sm'>{state.error}</span>
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 mb-4 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-red-400" />
+                <span className="text-red-400 text-sm">{state.error}</span>
               </div>
             )}
 
@@ -430,47 +507,56 @@ export default function Deposit() {
               whileTap={{ scale: 0.99 }}
               onClick={handleApprove}
               disabled={state.isApproving}
-              className='w-full py-4 bg-purple-600 hover:bg-purple-500 disabled:bg-purple-600/50 rounded-xl text-white font-medium transition-all flex items-center justify-center gap-2'>
-              {state.isApproving && <Loader2 className='w-4 h-4 animate-spin' />}
-              {state.isApproving ? 'APPROVING...' : 'APPROVE'}
+              className="w-full py-4 bg-purple-600 hover:bg-purple-500 disabled:bg-purple-600/50 rounded-xl text-white font-medium transition-all flex items-center justify-center gap-2"
+            >
+              {state.isApproving && (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              )}
+              {state.isApproving ? "APPROVING..." : "APPROVE"}
             </motion.button>
           </>
         )}
 
         {/* Step: Deposit */}
-        {state.step === 'deposit' && (
+        {state.step === "deposit" && (
           <>
-            <div className='text-center mb-6'>
-              <div className='w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4'>
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 {state.isDepositing ? (
-                  <Loader2 className='w-8 h-8 text-purple-400 animate-spin' />
+                  <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
                 ) : (
-                  <ArrowDown className='w-8 h-8 text-purple-400' />
+                  <ArrowDown className="w-8 h-8 text-purple-400" />
                 )}
               </div>
-              <h2 className='text-lg font-semibold text-white mb-2'>Confirm Deposit</h2>
-              <p className='text-zinc-500 text-sm'>Your tokens will be shielded in the private pool.</p>
+              <h2 className="text-lg font-semibold text-white mb-2">
+                Confirm Deposit
+              </h2>
+              <p className="text-zinc-500 text-sm">
+                Your tokens will be shielded in the private pool.
+              </p>
             </div>
 
-            <div className='bg-zinc-800/50 border border-zinc-700 rounded-lg p-4 mb-6 space-y-3'>
-              <div className='flex justify-between text-sm'>
-                <span className='text-zinc-500'>Token</span>
-                <span className='text-white'>{state.selectedToken?.symbol}</span>
+            <div className="bg-zinc-800/50 border border-zinc-700 rounded-lg p-4 mb-6 space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-zinc-500">Token</span>
+                <span className="text-white">
+                  {state.selectedToken?.symbol}
+                </span>
               </div>
-              <div className='flex justify-between text-sm'>
-                <span className='text-zinc-500'>Amount</span>
-                <span className='text-white'>{state.amount}</span>
+              <div className="flex justify-between text-sm">
+                <span className="text-zinc-500">Amount</span>
+                <span className="text-white">{state.amount}</span>
               </div>
-              <div className='flex justify-between text-sm'>
-                <span className='text-zinc-500'>Destination</span>
-                <span className='text-purple-400'>Shielded Pool</span>
+              <div className="flex justify-between text-sm">
+                <span className="text-zinc-500">Destination</span>
+                <span className="text-purple-400">Shielded Pool</span>
               </div>
             </div>
 
             {state.error && (
-              <div className='bg-red-500/10 border border-red-500/30 rounded-lg p-3 mb-4 flex items-center gap-2'>
-                <AlertCircle className='w-4 h-4 text-red-400' />
-                <span className='text-red-400 text-sm'>{state.error}</span>
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 mb-4 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-red-400" />
+                <span className="text-red-400 text-sm">{state.error}</span>
               </div>
             )}
 
@@ -479,51 +565,63 @@ export default function Deposit() {
               whileTap={{ scale: 0.99 }}
               onClick={handleDeposit}
               disabled={state.isDepositing}
-              className='w-full py-4 bg-purple-600 hover:bg-purple-500 disabled:bg-purple-600/50 rounded-xl text-white font-medium transition-all flex items-center justify-center gap-2'>
-              {state.isDepositing && <Loader2 className='w-4 h-4 animate-spin' />}
-              {state.isDepositing ? 'DEPOSITING...' : 'DEPOSIT TO SHIELDED POOL'}
+              className="w-full py-4 bg-purple-600 hover:bg-purple-500 disabled:bg-purple-600/50 rounded-xl text-white font-medium transition-all flex items-center justify-center gap-2"
+            >
+              {state.isDepositing && (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              )}
+              {state.isDepositing
+                ? "DEPOSITING..."
+                : "DEPOSIT TO SHIELDED POOL"}
             </motion.button>
           </>
         )}
 
         {/* Step: Success */}
-        {state.step === 'success' && (
+        {state.step === "success" && (
           <>
-            <div className='text-center mb-6'>
-              <div className='w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4'>
-                <Check className='w-8 h-8 text-green-400' />
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Check className="w-8 h-8 text-green-400" />
               </div>
-              <h2 className='text-lg font-semibold text-white mb-2'>Deposit Successful!</h2>
-              <p className='text-zinc-500 text-sm'>
-                Your {state.amount} {state.selectedToken?.symbol} is now shielded.
+              <h2 className="text-lg font-semibold text-white mb-2">
+                Deposit Successful!
+              </h2>
+              <p className="text-zinc-500 text-sm">
+                Your {state.amount} {state.selectedToken?.symbol} is now
+                shielded.
               </p>
             </div>
 
-            <div className='bg-zinc-800/50 border border-zinc-700 rounded-lg p-4 mb-6 space-y-3'>
-              <div className='flex justify-between text-sm'>
-                <span className='text-zinc-500'>Amount Shielded</span>
-                <span className='text-green-400'>
+            <div className="bg-zinc-800/50 border border-zinc-700 rounded-lg p-4 mb-6 space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-zinc-500">Amount Shielded</span>
+                <span className="text-green-400">
                   {state.amount} {state.selectedToken?.symbol}
                 </span>
               </div>
               {state.depositTxHash && (
-                <div className='flex justify-between text-sm items-center'>
-                  <span className='text-zinc-500'>Transaction</span>
+                <div className="flex justify-between text-sm items-center">
+                  <span className="text-zinc-500">Transaction</span>
                   <a
                     href={`https://sepolia.mantlescan.xyz/tx/${state.depositTxHash}`}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-purple-400 hover:text-purple-300 flex items-center gap-1'>
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-purple-400 hover:text-purple-300 flex items-center gap-1"
+                  >
                     View
-                    <ExternalLink className='w-3 h-3' />
+                    <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
               )}
               {state.commitment && (
-                <div className='pt-2 border-t border-zinc-700'>
-                  <span className='text-zinc-500 text-xs block mb-1'>Commitment (keep private)</span>
-                  <code className='text-xs text-zinc-400 break-all'>
-                    {state.commitment.slice(0, 20)}...{state.commitment.slice(-20)}
+                <div className="pt-2 border-t border-zinc-700">
+                  <span className="text-zinc-500 text-xs block mb-1">
+                    Commitment (keep private)
+                  </span>
+                  <code className="text-xs text-zinc-400 break-all">
+                    {state.commitment.slice(0, 20)}...
+                    {state.commitment.slice(-20)}
                   </code>
                 </div>
               )}
@@ -533,7 +631,8 @@ export default function Deposit() {
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
               onClick={handleReset}
-              className='w-full py-4 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-xl text-white font-medium transition-all'>
+              className="w-full py-4 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-xl text-white font-medium transition-all"
+            >
               MAKE ANOTHER DEPOSIT
             </motion.button>
           </>

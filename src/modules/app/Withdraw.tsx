@@ -13,14 +13,10 @@ import {
   ExternalLink,
   Info,
 } from "lucide-react";
-import { type Address, type Hex, formatUnits, parseUnits } from "viem";
+import { type Hex, formatUnits, parseUnits } from "viem";
 
 import { useApp } from "@/src/contexts/AppContext";
-import {
-  SUPPORTED_TOKENS,
-  CONTRACT_ADDRESSES,
-  DEFAULT_CHAIN_ID,
-} from "@/src/lib/constants";
+import { SUPPORTED_TOKENS, DEFAULT_CHAIN_ID } from "@/src/lib/constants";
 import type { TokenInfo } from "@/src/lib/constants";
 import type { Note } from "@/src/wallet-sdk";
 
@@ -49,12 +45,8 @@ export default function Withdraw() {
   const { address, isConnected, chainId } = useAccount();
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
-  const {
-    privacyWallet,
-    unspentNotes,
-    shieldedBalance,
-    refreshBalance,
-  } = useApp();
+  const { privacyWallet, unspentNotes, shieldedBalance, refreshBalance } =
+    useApp();
 
   // Get supported tokens
   const tokens = SUPPORTED_TOKENS[chainId ?? DEFAULT_CHAIN_ID] ?? [];
@@ -95,12 +87,9 @@ export default function Withdraw() {
   }, [state.withdrawAmount, state.selectedToken]);
 
   // Format amount for display
-  const formatAmount = useCallback(
-    (amount: bigint, decimals: number = 18) => {
-      return formatUnits(amount, decimals);
-    },
-    []
-  );
+  const formatAmount = useCallback((amount: bigint, decimals: number = 18) => {
+    return formatUnits(amount, decimals);
+  }, []);
 
   // =========================================================================
   // Note Selection
@@ -111,7 +100,7 @@ export default function Withdraw() {
       const isSelected = prev.selectedNotes.some(
         (n) => n.commitment === note.commitment
       );
-      
+
       if (isSelected) {
         return {
           ...prev,
@@ -174,7 +163,7 @@ export default function Withdraw() {
       // In production, this would:
       // 1. Call the prover service to generate proof
       // 2. Submit the proof to the contract
-      
+
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // Mock: Show that prover is not available
@@ -236,7 +225,8 @@ export default function Withdraw() {
             No Shielded Assets
           </h2>
           <p className="text-zinc-500 text-sm mb-4">
-            You don't have any shielded assets to withdraw. Make a deposit first.
+            You don&apos;t have any shielded assets to withdraw. Make a deposit
+            first.
           </p>
         </div>
       </div>
@@ -262,14 +252,22 @@ export default function Withdraw() {
               className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
                 state.step === step || state.step === "generating"
                   ? "bg-purple-500 text-white"
-                  : ["amount", "confirm", "generating", "success"].indexOf(state.step) >
-                    ["amount", "confirm", "generating", "success"].indexOf(step as WithdrawStep)
+                  : ["amount", "confirm", "generating", "success"].indexOf(
+                      state.step
+                    ) >
+                    ["amount", "confirm", "generating", "success"].indexOf(
+                      step as WithdrawStep
+                    )
                   ? "bg-green-500 text-white"
                   : "bg-zinc-800 text-zinc-500"
               }`}
             >
-              {["amount", "confirm", "generating", "success"].indexOf(state.step) >
-              ["amount", "confirm", "generating", "success"].indexOf(step as WithdrawStep) ? (
+              {["amount", "confirm", "generating", "success"].indexOf(
+                state.step
+              ) >
+              ["amount", "confirm", "generating", "success"].indexOf(
+                step as WithdrawStep
+              ) ? (
                 <Check className="w-4 h-4" />
               ) : (
                 index + 1
@@ -278,7 +276,9 @@ export default function Withdraw() {
             {index < 3 && (
               <div
                 className={`flex-1 h-0.5 ${
-                  ["amount", "confirm", "generating", "success"].indexOf(state.step) > index
+                  ["amount", "confirm", "generating", "success"].indexOf(
+                    state.step
+                  ) > index
                     ? "bg-green-500"
                     : "bg-zinc-800"
                 }`}
@@ -298,7 +298,9 @@ export default function Withdraw() {
         {state.step === "select" && (
           <>
             <div className="flex items-center justify-between mb-4">
-              <label className="text-zinc-500 text-sm">SELECT NOTES TO SPEND</label>
+              <label className="text-zinc-500 text-sm">
+                SELECT NOTES TO SPEND
+              </label>
               <button
                 onClick={selectAllNotes}
                 className="text-purple-400 text-xs hover:text-purple-300"
@@ -331,7 +333,9 @@ export default function Withdraw() {
                               : "border-zinc-600"
                           }`}
                         >
-                          {isSelected && <Check className="w-3 h-3 text-white" />}
+                          {isSelected && (
+                            <Check className="w-3 h-3 text-white" />
+                          )}
                         </div>
                         <div>
                           <p className="text-white font-medium">
@@ -344,9 +348,14 @@ export default function Withdraw() {
                       </div>
                       <div className="text-right">
                         <p className="text-white font-medium">
-                          {formatAmount(note.amount, 6)}
+                          {formatAmount(
+                            note.amount,
+                            state.selectedToken?.decimals ?? 18
+                          )}
                         </p>
-                        <p className="text-zinc-500 text-xs">tokens</p>
+                        <p className="text-zinc-500 text-xs">
+                          {state.selectedToken?.symbol ?? "tokens"}
+                        </p>
                       </div>
                     </div>
                   </button>
@@ -359,7 +368,11 @@ export default function Withdraw() {
                 <div className="flex justify-between text-sm">
                   <span className="text-zinc-500">Selected Total</span>
                   <span className="text-white font-medium">
-                    {formatAmount(selectedTotal, 6)} tokens
+                    {formatAmount(
+                      selectedTotal,
+                      state.selectedToken?.decimals ?? 18
+                    )}{" "}
+                    {state.selectedToken?.symbol ?? "tokens"}
                   </span>
                 </div>
               </div>
@@ -405,7 +418,10 @@ export default function Withdraw() {
                   <button
                     onClick={() =>
                       updateState({
-                        withdrawAmount: formatAmount(selectedTotal, 6),
+                        withdrawAmount: formatAmount(
+                          selectedTotal,
+                          state.selectedToken?.decimals ?? 18
+                        ),
                       })
                     }
                     className="text-purple-400 text-xs hover:text-purple-300"
@@ -415,7 +431,12 @@ export default function Withdraw() {
                 </div>
               </div>
               <p className="text-zinc-600 text-xs mt-2">
-                Available: {formatAmount(selectedTotal, 6)} tokens
+                Available:{" "}
+                {formatAmount(
+                  selectedTotal,
+                  state.selectedToken?.decimals ?? 18
+                )}{" "}
+                {state.selectedToken?.symbol ?? "tokens"}
               </p>
             </div>
 
@@ -486,7 +507,9 @@ export default function Withdraw() {
             <div className="bg-zinc-800/50 border border-zinc-700 rounded-lg p-4 mb-6 space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-zinc-500">Amount</span>
-                <span className="text-white">{state.withdrawAmount} tokens</span>
+                <span className="text-white">
+                  {state.withdrawAmount} tokens
+                </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-zinc-500">Notes Spent</span>
@@ -509,9 +532,9 @@ export default function Withdraw() {
                     ZK Proof Required
                   </p>
                   <p className="text-zinc-500 text-xs">
-                    Withdrawal requires generating a zero-knowledge proof via the SP1
-                    prover service. This proves you own the notes without revealing
-                    any private information.
+                    Withdrawal requires generating a zero-knowledge proof via
+                    the SP1 prover service. This proves you own the notes
+                    without revealing any private information.
                   </p>
                 </div>
               </div>
@@ -539,7 +562,9 @@ export default function Withdraw() {
                 disabled={state.isProcessing}
                 className="flex-1 py-4 bg-purple-600 hover:bg-purple-500 disabled:bg-purple-600/50 rounded-xl text-white font-medium transition-all flex items-center justify-center gap-2"
               >
-                {state.isProcessing && <Loader2 className="w-4 h-4 animate-spin" />}
+                {state.isProcessing && (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                )}
                 {state.isProcessing ? "GENERATING..." : "WITHDRAW"}
               </motion.button>
             </div>
@@ -564,7 +589,9 @@ export default function Withdraw() {
             <div className="bg-zinc-800/50 border border-zinc-700 rounded-lg p-4 mb-6 space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-zinc-500">Amount Withdrawn</span>
-                <span className="text-green-400">{state.withdrawAmount} tokens</span>
+                <span className="text-green-400">
+                  {state.withdrawAmount} tokens
+                </span>
               </div>
               {state.txHash && (
                 <div className="flex justify-between text-sm items-center">

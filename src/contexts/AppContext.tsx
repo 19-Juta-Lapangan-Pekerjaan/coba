@@ -23,7 +23,13 @@ import { KeyDerivation } from "@/src/wallet-sdk/keyDerivation";
 // Types
 // ============================================================================
 
-export type AppTab = "dashboard" | "trade" | "transfer" | "compliance" | "deposit" | "withdraw";
+export type AppTab =
+  | "dashboard"
+  | "trade"
+  | "transfer"
+  | "compliance"
+  | "deposit"
+  | "withdraw";
 
 interface WalletGenerationStep {
   id: number;
@@ -77,9 +83,8 @@ interface AppContextType {
 const initialWalletSteps: WalletGenerationStep[] = [
   {
     id: 1,
-    title: "Initializing TEE Environment",
-    description:
-      "Setting up Trusted Execution Environment for secure key generation",
+    title: "Initializing SP1 Environment",
+    description: "Setting up SP1 ZK-VM for secure confidential execution",
     status: "pending",
   },
   {
@@ -127,7 +132,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     useState<WalletGenerationStep[]>(initialWalletSteps);
 
   // Privacy wallet instance
-  const [privacyWallet, setPrivacyWallet] = useState<PrivacyWallet | null>(null);
+  const [privacyWallet, setPrivacyWallet] = useState<PrivacyWallet | null>(
+    null
+  );
 
   // Balance state
   const [shieldedBalance, setShieldedBalance] = useState<bigint>(0n);
@@ -222,8 +229,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       console.error("Wallet generation failed:", error);
 
       // Check if user rejected the signature
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      const isUserRejection = 
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      const isUserRejection =
         errorMessage.includes("rejected") ||
         errorMessage.includes("denied") ||
         errorMessage.includes("cancelled") ||

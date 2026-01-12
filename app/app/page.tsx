@@ -25,8 +25,8 @@ function AuthenticationScreen() {
             INSTITUTIONAL ACCESS REQUIRED
           </h1>
           <p className="text-zinc-500 text-sm max-w-md">
-            Verify your organization identity via TEE Attestation to access the
-            confidential execution layer.
+            Verify your identity via SP1 to access the confidential execution
+            layer.
           </p>
         </div>
         <motion.button

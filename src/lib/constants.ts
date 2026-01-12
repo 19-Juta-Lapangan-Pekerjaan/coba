@@ -1,5 +1,6 @@
 import type { Address } from "viem";
 import { mantleSepoliaTestnet, mantle } from "@mantleio/viem/chains";
+import { sepolia } from "viem/chains";
 
 // ============================================================================
 // Contract Addresses
@@ -46,10 +47,9 @@ export const SUPPORTED_TOKENS: Record<number, TokenInfo[]> = {
       decimals: 6,
     },
     {
-      // Wrapped MNT on Mantle Sepolia - this might work
-      address: "0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000" as Address, // Native MNT wrapper
-      symbol: "WMNT",
-      name: "Wrapped Mantle",
+      address: "0xC17B4eb66bA71b32c7567083ef0f9D7faEa3A748" as Address, // WMNT on Mantle
+      symbol: "MNT",
+      name: "Mantle Testnet Token",
       decimals: 18,
     },
   ],
@@ -61,9 +61,23 @@ export const SUPPORTED_TOKENS: Record<number, TokenInfo[]> = {
       decimals: 6,
     },
     {
-      address: "0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8" as Address, // WMNT on Mantle
-      symbol: "WMNT",
-      name: "Wrapped Mantle",
+      address: "0xC17B4eb66bA71b32c7567083ef0f9D7faEa3A748" as Address, // WMNT on Mantle
+      symbol: "MNT",
+      name: "Mantle Testnet Token",
+      decimals: 18,
+    },
+  ],
+  [sepolia.id]: [
+    {
+      address: "0x65e37B558F64E2Be5768DB46DF22F93d85741A9E" as Address, // SepoliaMantle
+      symbol: "SepMNT",
+      name: "Sepolia MNT",
+      decimals: 18,
+    },
+    {
+      address: "0xC17B4eb66bA71b32c7567083ef0f9D7faEa3A748" as Address, // WMNT on Mantle
+      symbol: "MNT",
+      name: "Mantle Testnet Token",
       decimals: 18,
     },
   ],
