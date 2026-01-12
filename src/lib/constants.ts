@@ -41,25 +41,13 @@ export const SUPPORTED_TOKENS: Record<number, TokenInfo[]> = {
     // IMPORTANT: Replace these with actual token addresses
     // You can deploy a test ERC20 or use existing tokens on Mantle Sepolia
     {
-      address: "0x0000000000000000000000000000000000000000" as Address, // DEPLOY OR FIND A TEST TOKEN
-      symbol: "USDC",
-      name: "USD Coin",
-      decimals: 6,
-    },
-    {
-      address: "0xC17B4eb66bA71b32c7567083ef0f9D7faEa3A748" as Address, // WMNT on Mantle
-      symbol: "MNT",
-      name: "Mantle Testnet Token",
+      address: "0x65e37B558F64E2Be5768DB46DF22F93d85741A9E" as Address, // SepoliaMantle
+      symbol: "SepMNT",
+      name: "Sepolia MNT",
       decimals: 18,
     },
   ],
   [mantle.id]: [
-    {
-      address: "0x09Bc4E0D864854c6aFB6eB9A9cdF58aC190D0dF9" as Address, // USDC on Mantle
-      symbol: "USDC",
-      name: "USD Coin",
-      decimals: 6,
-    },
     {
       address: "0xC17B4eb66bA71b32c7567083ef0f9D7faEa3A748" as Address, // WMNT on Mantle
       symbol: "MNT",
@@ -72,12 +60,6 @@ export const SUPPORTED_TOKENS: Record<number, TokenInfo[]> = {
       address: "0x65e37B558F64E2Be5768DB46DF22F93d85741A9E" as Address, // SepoliaMantle
       symbol: "SepMNT",
       name: "Sepolia MNT",
-      decimals: 18,
-    },
-    {
-      address: "0xC17B4eb66bA71b32c7567083ef0f9D7faEa3A748" as Address, // WMNT on Mantle
-      symbol: "MNT",
-      name: "Mantle Testnet Token",
       decimals: 18,
     },
   ],
