@@ -333,38 +333,38 @@ export default function Deposit() {
 
       {/* Progress Steps */}
       <div className="flex items-center gap-2 mb-8">
-        {["input", "approve", "deposit", "success"].map((step, index) => (
-          <div key={step} className="flex items-center gap-2 flex-1">
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-                state.step === step
-                  ? "bg-purple-500 text-white"
-                  : ["approve", "deposit", "success"].indexOf(state.step) >
-                    ["approve", "deposit", "success"].indexOf(
-                      step as DepositStep
-                    )
-                  ? "bg-green-500 text-white"
-                  : "bg-zinc-800 text-zinc-500"
-              }`}
-            >
-              {["approve", "deposit", "success"].indexOf(state.step) >
-              ["approve", "deposit", "success"].indexOf(step as DepositStep) ? (
-                <Check className="w-4 h-4" />
-              ) : (
-                index + 1
+        {["input", "approve", "deposit", "success"].map((step, index) => {
+          const stepOrder = ["input", "approve", "deposit", "success"];
+          const currentStepIndex = stepOrder.indexOf(state.step);
+          const thisStepIndex = stepOrder.indexOf(step);
+          const isCompleted = thisStepIndex < currentStepIndex;
+          const isCurrent = state.step === step;
+          
+          return (
+            <div key={step} className="flex items-center gap-2 flex-1">
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+                  isCurrent
+                    ? "bg-purple-500 text-white"
+                    : isCompleted
+                      ? "bg-green-500 text-white"
+                      : "bg-zinc-800 text-zinc-500"
+                }`}
+              >
+                {isCompleted ? <Check className="w-4 h-4" /> : index + 1}
+              </div>
+              {index < 3 && (
+                <div
+                  className={`flex-1 h-0.5 ${
+                    thisStepIndex < currentStepIndex
+                      ? "bg-green-500"
+                      : "bg-zinc-800"
+                  }`}
+                />
               )}
             </div>
-            {index < 3 && (
-              <div
-                className={`flex-1 h-0.5 ${
-                  ["approve", "deposit", "success"].indexOf(state.step) > index
-                    ? "bg-green-500"
-                    : "bg-zinc-800"
-                }`}
-              />
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Main Card */}
