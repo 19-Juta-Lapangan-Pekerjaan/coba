@@ -6,7 +6,6 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount, useBalance, useDisconnect } from "wagmi";
 import { mainnet, base, arbitrum, sepolia } from "wagmi/chains";
 import { mantle, mantleSepoliaTestnet } from "@mantleio/viem/chains";
-import Image from "next/image";
 import Link from "next/link";
 import * as motion from "motion/react-client";
 import { AnimatePresence } from "framer-motion";
@@ -16,6 +15,7 @@ import {
   ArrowDownLeft,
   ArrowLeft,
   Wallet,
+  Globe,
   X,
   ExternalLink,
 } from "lucide-react";
@@ -48,6 +48,9 @@ export default function AppNavbar() {
   const { activeTab, setActiveTab } = useApp();
   const [walletDropdownOpen, setWalletDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [chainModalOpener, setChainModalOpener] = useState<(() => void) | null>(
+    null
+  );
   const dropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const { address, chain: currentChain } = useAccount();
@@ -156,51 +159,7 @@ export default function AppNavbar() {
           </div>
 
           {/* Right Side - Network & Wallet */}
-          <div className="flex items-center gap-3">
-            {/* Mobile Hamburger Menu */}
-            <div className="relative lg:hidden" ref={mobileMenuRef}>
-              <HamburgerButton
-                isOpen={mobileMenuOpen}
-                setIsOpen={setMobileMenuOpen}
-                colorClassName="bg-white"
-              />
-
-              {/* Mobile Dropdown Menu */}
-              <AnimatePresence>
-                {mobileMenuOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute right-0 top-full mt-4 w-48 bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl overflow-hidden"
-                  >
-                    <div className="py-2">
-                      {tabs.map((tab) => (
-                        <motion.button
-                          key={tab.id}
-                          onClick={() => {
-                            setActiveTab(tab.id);
-                            setMobileMenuOpen(false);
-                          }}
-                          whileHover={{
-                            backgroundColor: "rgba(63, 63, 70, 0.5)",
-                          }}
-                          whileTap={{ scale: 0.98 }}
-                          className={`w-full px-4 py-3 text-left text-sm font-medium transition-all ${
-                            activeTab === tab.id
-                              ? "bg-zinc-800 text-purple-400 border-l-2 border-purple-400"
-                              : "text-zinc-300 hover:text-white"
-                          }`}
-                        >
-                          {tab.label}
-                        </motion.button>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+          <div className="flex items-center gap-2 sm:gap-3">
             <ConnectButton.Custom>
               {({
                 account,
@@ -211,6 +170,19 @@ export default function AppNavbar() {
               }) => {
                 const ready = mounted;
                 const connected = ready && account && chain;
+
+                // Store openChainModal reference for mobile menu
+                if (
+                  connected &&
+                  openChainModal &&
+                  chainModalOpener !== openChainModal
+                ) {
+                  // Use setTimeout to avoid state update during render
+                  setTimeout(
+                    () => setChainModalOpener(() => openChainModal),
+                    0
+                  );
+                }
 
                 return (
                   <div
@@ -240,12 +212,12 @@ export default function AppNavbar() {
 
                       return (
                         <>
-                          {/* Chain Selector - Clickable */}
+                          {/* Chain Selector - Hidden on mobile */}
                           <motion.button
                             onClick={openChainModal}
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            className="flex items-center gap-2 px-3 py-2 bg-zinc-900/80 border border-zinc-700 rounded-lg hover:bg-zinc-800 transition-all cursor-pointer"
+                            className="hidden sm:flex items-center gap-2 px-3 py-2 bg-zinc-900/80 border border-zinc-700 rounded-lg hover:bg-zinc-800 transition-all cursor-pointer"
                           >
                             <div className="w-2 h-2 bg-green-500 rounded-full" />
                             <span className="text-xs text-zinc-300 uppercase font-medium">
@@ -266,12 +238,15 @@ export default function AppNavbar() {
                               }
                               whileHover={{ scale: 1.02 }}
                               whileTap={{ scale: 0.98 }}
-                              className="flex items-center gap-2 px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg hover:bg-zinc-800 transition-all cursor-pointer"
+                              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg hover:bg-zinc-800 transition-all cursor-pointer"
                             >
+                              {/* Mobile: Show only wallet icon and balance */}
+                              <Wallet className="w-4 h-4 text-purple-400 sm:hidden" />
                               <span className="text-xs text-zinc-300 font-medium">
                                 {account.displayBalance || "0 ETH"}
                               </span>
-                              <span className="text-xs text-zinc-500">
+                              {/* Desktop: Show address */}
+                              <span className="hidden sm:inline text-xs text-zinc-500">
                                 {account.displayName}
                               </span>
                               <ChevronDown
@@ -426,6 +401,102 @@ export default function AppNavbar() {
                 );
               }}
             </ConnectButton.Custom>
+
+            {/* Mobile Hamburger Menu - Always on the right */}
+            <div className="relative lg:hidden" ref={mobileMenuRef}>
+              <HamburgerButton
+                isOpen={mobileMenuOpen}
+                setIsOpen={setMobileMenuOpen}
+                colorClassName="bg-white"
+              />
+
+              {/* Mobile Dropdown Menu */}
+              <AnimatePresence>
+                {mobileMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-full mt-4 w-64 bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl overflow-hidden"
+                  >
+                    {/* Wallet Info Section - Only when connected */}
+                    {address && (
+                      <div className="px-4 py-3 border-b border-zinc-800 bg-zinc-800/50">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-green-500 rounded-full" />
+                            <span className="text-xs text-zinc-400 uppercase">
+                              {currentChain?.name || "Connected"}
+                            </span>
+                          </div>
+                          {/* Switch Network Button */}
+                          <button
+                            onClick={() => {
+                              if (chainModalOpener) {
+                                chainModalOpener();
+                                setMobileMenuOpen(false);
+                              }
+                            }}
+                            className="flex items-center gap-1 px-2 py-1 bg-purple-500/20 border border-purple-500/30 rounded-md text-purple-400 text-xs font-medium hover:bg-purple-500/30 transition-colors"
+                          >
+                            <Globe className="w-3 h-3" />
+                            Switch
+                          </button>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-white font-medium">
+                            {address.slice(0, 6)}...{address.slice(-4)}
+                          </span>
+                          <span className="text-xs text-zinc-400">
+                            {formatUsd(totalUsd)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Navigation Tabs */}
+                    <div className="py-2">
+                      {tabs.map((tab) => (
+                        <motion.button
+                          key={tab.id}
+                          onClick={() => {
+                            setActiveTab(tab.id);
+                            setMobileMenuOpen(false);
+                          }}
+                          whileHover={{
+                            backgroundColor: "rgba(63, 63, 70, 0.5)",
+                          }}
+                          whileTap={{ scale: 0.98 }}
+                          className={`w-full px-4 py-3 text-left text-sm font-medium transition-all ${
+                            activeTab === tab.id
+                              ? "bg-zinc-800 text-purple-400 border-l-2 border-purple-400"
+                              : "text-zinc-300 hover:text-white"
+                          }`}
+                        >
+                          {tab.label}
+                        </motion.button>
+                      ))}
+                    </div>
+
+                    {/* Disconnect Button - Only when connected */}
+                    {address && (
+                      <div className="px-4 py-3 border-t border-zinc-800">
+                        <button
+                          onClick={() => {
+                            disconnect();
+                            setMobileMenuOpen(false);
+                          }}
+                          className="w-full py-2 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-xs font-medium hover:bg-red-500/20 transition-colors"
+                        >
+                          Disconnect Wallet
+                        </button>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </div>
