@@ -57,16 +57,27 @@ The wallet SDK provides all cryptographic and blockchain interactions:
 
 When a user connects their wallet, the following happens:
 
-1. **TEE Environment Init**: Setup secure context
+1. **SP1 Environment Init**: Initialize privacy context for ZK operations
 2. **Sign Message**: User signs a message to derive privacy keys
-3. **Key Derivation**: Extract view and spend keys from signature
-4. **Stealth Address**: Compute receiving address from keys
+3. **Key Derivation**: Extract view and spend keys from signature using keccak256
+4. **Stealth Address**: Compute receiving address from public keys
 5. **Chain Sync**: Fetch existing notes from contract events
 
 ```typescript
-// Key derivation from signature
-const viewKey = keccak256(signature + "view");
-const spendKey = keccak256(signature + "spend");
+import { keccak256, toBytes } from "viem";
+
+// Key derivation from wallet signature
+const signature = await walletClient.signMessage({ message: "Gelap Privacy Keys" });
+
+// Derive view key (for scanning incoming transactions)
+const viewPrivateKey = keccak256(toBytes(signature + "gelap-view-key"));
+
+// Derive spend key (for authorizing outgoing transactions)
+const spendPrivateKey = keccak256(toBytes(signature + "gelap-spend-key"));
+
+// Public keys are derived from private keys using secp256k1
+const viewPublicKey = secp256k1.getPublicKey(viewPrivateKey);
+const spendPublicKey = secp256k1.getPublicKey(spendPrivateKey);
 ```
 
 ## User Flows
@@ -166,13 +177,25 @@ const { events } = useContractEvents({
 
 ## Environment Variables
 
+Create a `.env.local` file in the project root:
+
 ```env
-# Prover service URL (for ZK proof generation)
+# Prover service URL (for ZK proof generation via SP1)
 NEXT_PUBLIC_PROVER_API_URL=http://localhost:3001
 
-# WalletConnect project ID
+# WalletConnect project ID (required for wallet connection)
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_project_id
 ```
+
+### Getting WalletConnect Project ID
+
+1. Go to [WalletConnect Cloud](https://cloud.walletconnect.com/)
+2. Sign up or log in
+3. Click **"Create Project"**
+4. Enter project name (e.g., "Gelap Privacy")
+5. Select **"App"** as project type
+6. Copy the **Project ID** from the dashboard
+7. Paste it in your `.env.local` file
 
 ## Prover Service Integration
 
