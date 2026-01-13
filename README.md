@@ -5,6 +5,7 @@ Gelap Privacy is the frontend application for the Gelap shielded DEX, enabling p
 ## Overview
 
 This application provides a user interface for:
+
 - **Shielded Deposits**: Move tokens into the private pool
 - **Private Transfers**: Send tokens privately between shielded addresses
 - **Withdrawals**: Exit the shielded pool back to public addresses
@@ -15,6 +16,7 @@ This application provides a user interface for:
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js 18+
 - pnpm (recommended) or npm
 
@@ -30,7 +32,7 @@ pnpm install
 pnpm run dev
 ```
 
-Navigate to `http://localhost:3000/app` to access the shielded DEX.
+Open your browser at `http://localhost:3000` and click `Launch Now` to access the shielded DEX.
 
 ### Build
 
@@ -44,14 +46,14 @@ pnpm run build
 
 The wallet SDK provides all cryptographic and blockchain interactions:
 
-| Module | Purpose |
-|--------|---------|
-| `wallet.ts` | Main `PrivacyWallet` class combining all functionality |
-| `commitment.ts` | Pedersen commitment generation and verification |
-| `keyDerivation.ts` | View/spend key derivation from wallet signatures |
-| `stealthAddress.ts` | Stealth address generation for private receiving |
-| `merkleTree.ts` | Client-side Merkle tree for tracking commitments |
-| `contractService.ts` | Smart contract interaction wrapper |
+| Module               | Purpose                                                |
+| -------------------- | ------------------------------------------------------ |
+| `wallet.ts`          | Main `PrivacyWallet` class combining all functionality |
+| `commitment.ts`      | Pedersen commitment generation and verification        |
+| `keyDerivation.ts`   | View/spend key derivation from wallet signatures       |
+| `stealthAddress.ts`  | Stealth address generation for private receiving       |
+| `merkleTree.ts`      | Client-side Merkle tree for tracking commitments       |
+| `contractService.ts` | Smart contract interaction wrapper                     |
 
 ### Key Generation Flow
 
@@ -67,7 +69,9 @@ When a user connects their wallet, the following happens:
 import { keccak256, toBytes } from "viem";
 
 // Key derivation from wallet signature
-const signature = await walletClient.signMessage({ message: "Gelap Privacy Keys" });
+const signature = await walletClient.signMessage({
+  message: "Gelap Privacy Keys",
+});
 
 // Derive view key (for scanning incoming transactions)
 const viewPrivateKey = keccak256(toBytes(signature + "gelap-view-key"));
@@ -128,11 +132,11 @@ function withdraw(bytes calldata publicInputs, bytes calldata proofBytes, addres
 
 ### Events to Track
 
-| Event | Description |
-|-------|-------------|
-| `AccountUpdated(bytes32 commitment, bytes encryptedMemo)` | New note created |
-| `TransactionExecuted(...)` | Private transaction completed |
-| `WithdrawExecuted(address receiver, ...)` | Withdrawal completed |
+| Event                                                     | Description                   |
+| --------------------------------------------------------- | ----------------------------- |
+| `AccountUpdated(bytes32 commitment, bytes encryptedMemo)` | New note created              |
+| `TransactionExecuted(...)`                                | Private transaction completed |
+| `WithdrawExecuted(address receiver, ...)`                 | Withdrawal completed          |
 
 ## Hooks
 
@@ -141,12 +145,12 @@ function withdraw(bytes calldata publicInputs, bytes calldata proofBytes, addres
 Main hook for privacy wallet state:
 
 ```typescript
-const { 
-  privacyWallet,      // PrivacyWallet instance
-  shieldedBalance,    // Total shielded balance
-  unspentNotes,       // Available UTXOs
-  isLoading,          // Loading state
-  refresh,            // Refresh balance
+const {
+  privacyWallet, // PrivacyWallet instance
+  shieldedBalance, // Total shielded balance
+  unspentNotes, // Available UTXOs
+  isLoading, // Loading state
+  refresh, // Refresh balance
 } = usePrivacyWallet();
 ```
 
@@ -156,9 +160,9 @@ Fetch live yield rates from DeFiLlama:
 
 ```typescript
 const {
-  ustbYield,       // T-Bill yield proxy
-  usdcLend,        // USDC lending rate
-  privateCredit,   // Private credit yield
+  ustbYield, // T-Bill yield proxy
+  usdcLend, // USDC lending rate
+  privateCredit, // Private credit yield
   isLoading,
   refresh,
 } = useTreasuryRates();
@@ -235,12 +239,12 @@ POST /api/prove/swap
 
 The client-side Merkle tree must match the on-chain implementation:
 
-| Property | Value |
-|----------|-------|
-| Hash Function | `keccak256` |
-| Tree Depth | 32 levels |
-| Node Index | `(level << 32) | index` |
-| Zero Hash[0] | `keccak256(abi.encodePacked(uint256(0)))` |
+| Property      | Value                                     |
+| ------------- | ----------------------------------------- | ------ |
+| Hash Function | `keccak256`                               |
+| Tree Depth    | 32 levels                                 |
+| Node Index    | `(level << 32)                            | index` |
+| Zero Hash[0]  | `keccak256(abi.encodePacked(uint256(0)))` |
 
 ## Commitment Format
 
@@ -251,6 +255,7 @@ Commitment = H * amount + G * blinding
 ```
 
 Where:
+
 - `H` = Secondary generator point on secp256k1
 - `G` = Standard generator point
 - `blinding` = Random 32-byte scalar
@@ -289,17 +294,20 @@ pnpm run build
 ### RPC Errors (503)
 
 If you see "no backends available":
+
 - Check you're on the correct network (Mantle Sepolia for testnet)
 - Contract may not be deployed on mainnet yet
 
 ### Signature Rejected
 
 If wallet generation fails:
+
 - User rejected the signature request
 - Click "Retry Generation" button
 
 ### Prover Unavailable
 
 Withdrawals require a running prover service:
+
 - Set `NEXT_PUBLIC_PROVER_API_URL` in `.env.local`
 - Mock proofs are used in development
