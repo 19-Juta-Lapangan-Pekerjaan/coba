@@ -1,39 +1,218 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import * as motion from "motion/react-client";
-import { Shield, Lock, Eye, ArrowLeftRight } from "lucide-react";
+import {
+  Lock,
+  ArrowLeftRight,
+  Check,
+  Loader2,
+  Shield,
+  Zap,
+} from "lucide-react";
 
-// Mock token data
-const tokens = [
-  { id: "usdc", symbol: "USDC", name: "USD Coin", icon: "$", balance: 45000.0 },
+// Mock token data - Mock Token and Mock Gold
+interface Token {
+  id: string;
+  symbol: string;
+  name: string;
+  icon: string;
+  color: string;
+}
+
+const tokenData: Token[] = [
   {
-    id: "ustb",
-    symbol: "USTB",
-    name: "US T-Bill Fund",
-    icon: "U",
-    balance: 12287.52,
-    yield: 5.2,
+    id: "mtkn",
+    symbol: "MTKN",
+    name: "Mock Token",
+    icon: "M",
+    color: "bg-purple-600",
   },
-  { id: "eth", symbol: "ETH", name: "Ethereum", icon: "E", balance: 2.5 },
+  {
+    id: "mgld",
+    symbol: "MGLD",
+    name: "Mock Gold",
+    icon: "G",
+    color: "bg-yellow-500",
+  },
 ];
 
+// Default balance for all tokens
+const DEFAULT_BALANCE = 3;
+
+// Exchange rate: 1 MTKN = 0.5 MGLD (adjustable)
+const EXCHANGE_RATE = 0.5;
+
 type OrderType = "market" | "limit" | "twap";
+type TransactionStep =
+  | "idle"
+  | "executing"
+  | "signing"
+  | "zk-proof"
+  | "done"
+  | "failed";
+
+interface ZKProofData {
+  commitment: string;
+  nullifier: string;
+  witness: string;
+  proof: string;
+  publicInputs: string[];
+}
 
 export default function Trade() {
-  const [sellToken, setSellToken] = useState(tokens[0]);
-  const [buyToken, setBuyToken] = useState(tokens[1]);
+  const [sellToken, setSellToken] = useState(tokenData[0]);
+  const [buyToken, setBuyToken] = useState(tokenData[1]);
   const [sellAmount, setSellAmount] = useState("");
-  const [buyAmount, setBuyAmount] = useState("");
   const [orderType, setOrderType] = useState<OrderType>("market");
+
+  // Token balances (stateful so they can be updated after trades)
+  const [balances, setBalances] = useState<Record<string, number>>({
+    mtkn: DEFAULT_BALANCE,
+    mgld: DEFAULT_BALANCE,
+  });
+
+  // Transaction state
+  const [transactionStep, setTransactionStep] =
+    useState<TransactionStep>("idle");
+  const [zkProofData, setZkProofData] = useState<ZKProofData | null>(null);
+  const [zkProofProgress, setZkProofProgress] = useState(0);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Calculate buy amount based on sell amount (derived state using useMemo)
+  const buyAmount = useMemo(() => {
+    if (sellAmount && !isNaN(parseFloat(sellAmount))) {
+      const sellValue = parseFloat(sellAmount);
+      // When selling MTKN for MGLD, multiply by rate
+      // When selling MGLD for MTKN, divide by rate
+      let calculatedBuy: number;
+      if (sellToken.id === "mtkn") {
+        calculatedBuy = sellValue * EXCHANGE_RATE;
+      } else {
+        calculatedBuy = sellValue / EXCHANGE_RATE;
+      }
+      return calculatedBuy.toFixed(6).replace(/\.?0+$/, "");
+    }
+    return "";
+  }, [sellAmount, sellToken.id]);
 
   const handleSwapTokens = () => {
     const temp = sellToken;
     setSellToken(buyToken);
     setBuyToken(temp);
-    setSellAmount(buyAmount);
-    setBuyAmount(sellAmount);
+    setSellAmount("");
   };
+
+  const handleSellAmountChange = (value: string) => {
+    // Only allow numbers and decimal point
+    if (value === "" || /^\d*\.?\d*$/.test(value)) {
+      setSellAmount(value);
+    }
+  };
+
+  // Generate mock ZK proof data
+  const generateMockZKProof = useCallback((): ZKProofData => {
+    const randomHex = (length: number) =>
+      Array.from({ length }, () =>
+        Math.floor(Math.random() * 16).toString(16)
+      ).join("");
+
+    return {
+      commitment: `0x${randomHex(64)}`,
+      nullifier: `0x${randomHex(64)}`,
+      witness: `0x${randomHex(128)}`,
+      proof: `0x${randomHex(256)}`,
+      publicInputs: [
+        `0x${randomHex(64)}`,
+        `0x${randomHex(64)}`,
+        `0x${randomHex(64)}`,
+      ],
+    };
+  }, []);
+
+  // Execute transaction with step-by-step progress
+  const handleExecute = async () => {
+    if (!sellAmount || parseFloat(sellAmount) <= 0) return;
+
+    const sellValue = parseFloat(sellAmount);
+    const currentBalance = balances[sellToken.id];
+
+    // Validate balance
+    if (sellValue > currentBalance) {
+      setErrorMessage(
+        `Insufficient balance. You only have ${currentBalance} ${sellToken.symbol}`
+      );
+      setTransactionStep("failed");
+      return;
+    }
+
+    setErrorMessage(null);
+
+    // Step 1: Executing Transaction
+    setTransactionStep("executing");
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    // Step 2: Sign Transaction
+    setTransactionStep("signing");
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+
+    // Step 3: Create ZK Proof (with progress simulation)
+    setTransactionStep("zk-proof");
+    setZkProofProgress(0);
+
+    // Simulate ZK proof generation with progress
+    for (let i = 0; i <= 100; i += Math.floor(Math.random() * 15) + 5) {
+      setZkProofProgress(Math.min(i, 100));
+      await new Promise((resolve) =>
+        setTimeout(resolve, 200 + Math.random() * 300)
+      );
+    }
+    setZkProofProgress(100);
+
+    // Generate the mock proof data
+    const proofData = generateMockZKProof();
+    setZkProofData(proofData);
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // Update balances after successful trade
+    const buyValue = parseFloat(buyAmount);
+    setBalances((prev) => ({
+      ...prev,
+      [sellToken.id]: prev[sellToken.id] - sellValue,
+      [buyToken.id]: prev[buyToken.id] + buyValue,
+    }));
+
+    // Step 4: Done
+    setTransactionStep("done");
+  };
+
+  const resetTransaction = () => {
+    setTransactionStep("idle");
+    setZkProofData(null);
+    setZkProofProgress(0);
+    setSellAmount("");
+    setErrorMessage(null);
+  };
+
+  const getStepStatus = (step: TransactionStep) => {
+    const steps: TransactionStep[] = [
+      "executing",
+      "signing",
+      "zk-proof",
+      "done",
+    ];
+    const currentIndex = steps.indexOf(transactionStep);
+    const stepIndex = steps.indexOf(step);
+
+    if (stepIndex < currentIndex) return "completed";
+    if (stepIndex === currentIndex) return "active";
+    return "pending";
+  };
+
+  const sellValue = sellAmount ? parseFloat(sellAmount) : 0;
+  const isInsufficientBalance = sellValue > balances[sellToken.id];
+  const isExecuteDisabled =
+    !sellAmount || sellValue <= 0 || transactionStep !== "idle";
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -41,7 +220,7 @@ export default function Trade() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <Lock className="w-5 h-5 text-zinc-400" />
-          <h1 className="text-xl font-bold text-white">DARK POOL EXECUTION</h1>
+          <h1 className="text-xl font-bold text-white">PRIVATE TRADE</h1>
         </div>
         <div className="flex items-center gap-2">
           <span className="px-3 py-1 bg-cyan-500/20 text-cyan-400 text-xs rounded border border-cyan-500/30">
@@ -71,7 +250,9 @@ export default function Trade() {
                   </span>
                 </div>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-zinc-700 rounded-full flex items-center justify-center text-lg font-bold text-white">
+                  <div
+                    className={`w-10 h-10 ${sellToken.color} rounded-full flex items-center justify-center text-lg font-bold text-white`}
+                  >
                     {sellToken.icon}
                   </div>
                   <div>
@@ -79,25 +260,46 @@ export default function Trade() {
                       {sellToken.symbol}
                     </p>
                     <p className="text-zinc-500 text-xs">
-                      Balance: {sellToken.balance.toLocaleString()}
+                      Balance: {balances[sellToken.id].toLocaleString()}
                     </p>
                   </div>
                 </div>
                 <input
                   type="text"
                   value={sellAmount}
-                  onChange={(e) => setSellAmount(e.target.value)}
+                  onChange={(e) => handleSellAmountChange(e.target.value)}
                   placeholder="0.00"
-                  className="w-full bg-transparent text-2xl text-white placeholder-zinc-600 outline-none"
+                  disabled={transactionStep !== "idle"}
+                  className={`w-full bg-transparent text-2xl text-white placeholder-zinc-600 outline-none disabled:opacity-50 ${
+                    isInsufficientBalance ? "text-red-400" : ""
+                  }`}
                 />
+                {isInsufficientBalance && transactionStep === "idle" && (
+                  <p className="mt-1 text-xs text-red-400">
+                    Insufficient balance
+                  </p>
+                )}
+                <button
+                  onClick={() =>
+                    setSellAmount(balances[sellToken.id].toString())
+                  }
+                  disabled={transactionStep !== "idle"}
+                  className="mt-2 text-xs text-cyan-400 hover:text-cyan-300 disabled:opacity-50"
+                >
+                  MAX
+                </button>
               </div>
 
               {/* Swap Button */}
               <motion.button
                 onClick={handleSwapTokens}
-                whileHover={{ scale: 1.1, rotate: 180 }}
+                disabled={transactionStep !== "idle"}
+                whileHover={{
+                  scale: transactionStep === "idle" ? 1.1 : 1,
+                  rotate: transactionStep === "idle" ? 180 : 0,
+                }}
                 whileTap={{ scale: 0.9 }}
-                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-zinc-800 border border-zinc-700 rounded-full flex items-center justify-center hover:bg-zinc-700 transition-colors"
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-zinc-800 border border-zinc-700 rounded-full flex items-center justify-center hover:bg-zinc-700 transition-colors disabled:opacity-50"
               >
                 <ArrowLeftRight className="w-4 h-4 text-zinc-400" />
               </motion.button>
@@ -111,28 +313,27 @@ export default function Trade() {
                 </div>
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-lg font-bold text-white">
+                    <div
+                      className={`w-10 h-10 ${buyToken.color} rounded-full flex items-center justify-center text-lg font-bold text-white`}
+                    >
                       {buyToken.icon}
                     </div>
                     <div>
                       <p className="text-white font-semibold">
                         {buyToken.symbol}
                       </p>
+                      <p className="text-zinc-500 text-xs">
+                        Balance: {balances[buyToken.id].toLocaleString()}
+                      </p>
                     </div>
                   </div>
-                  {buyToken.yield && (
-                    <span className="text-cyan-400 text-sm">
-                      Yield: {buyToken.yield}%
-                    </span>
-                  )}
                 </div>
-                <input
-                  type="text"
-                  value={buyAmount}
-                  onChange={(e) => setBuyAmount(e.target.value)}
-                  placeholder="0.00"
-                  className="w-full bg-transparent text-2xl text-white placeholder-zinc-600 outline-none"
-                />
+                <div className="text-2xl text-white">{buyAmount || "0.00"}</div>
+                <p className="mt-2 text-xs text-zinc-500">
+                  Rate: 1 {sellToken.symbol} ={" "}
+                  {sellToken.id === "mtkn" ? EXCHANGE_RATE : 1 / EXCHANGE_RATE}{" "}
+                  {buyToken.symbol}
+                </p>
               </div>
             </div>
 
@@ -152,7 +353,8 @@ export default function Trade() {
                     name="orderType"
                     checked={orderType === type.id}
                     onChange={() => setOrderType(type.id)}
-                    className="w-4 h-4 text-cyan-500 bg-zinc-800 border-zinc-600 focus:ring-cyan-500 focus:ring-offset-zinc-900"
+                    disabled={transactionStep !== "idle"}
+                    className="w-4 h-4 text-cyan-500 bg-zinc-800 border-zinc-600 focus:ring-cyan-500 focus:ring-offset-zinc-900 disabled:opacity-50"
                   />
                   <span
                     className={`text-sm ${
@@ -166,65 +368,260 @@ export default function Trade() {
             </div>
 
             {/* Execute Button */}
-            <motion.button
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
-              className="w-full mt-6 py-4 bg-zinc-800 border border-zinc-700 rounded-xl text-zinc-400 font-medium hover:bg-zinc-700 hover:text-white transition-all"
-            >
-              ENTER VOLUME
-            </motion.button>
+            {transactionStep === "idle" ? (
+              <motion.button
+                onClick={handleExecute}
+                disabled={isExecuteDisabled || isInsufficientBalance}
+                whileHover={{
+                  scale: isExecuteDisabled || isInsufficientBalance ? 1 : 1.01,
+                }}
+                whileTap={{ scale: 0.99 }}
+                className={`w-full mt-6 py-4 rounded-xl font-medium transition-all ${
+                  isExecuteDisabled || isInsufficientBalance
+                    ? "bg-zinc-800 border border-zinc-700 text-zinc-500 cursor-not-allowed"
+                    : "bg-gradient-to-r from-cyan-600 to-blue-600 text-white hover:from-cyan-500 hover:to-blue-500"
+                }`}
+              >
+                {isInsufficientBalance
+                  ? "INSUFFICIENT BALANCE"
+                  : sellAmount && parseFloat(sellAmount) > 0
+                  ? "EXECUTE TRADE"
+                  : "ENTER VOLUME"}
+              </motion.button>
+            ) : transactionStep === "done" ? (
+              <motion.button
+                onClick={resetTransaction}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                className="w-full mt-6 py-4 bg-green-600 rounded-xl text-white font-medium hover:bg-green-500 transition-all"
+              >
+                ✓ TRADE COMPLETE - NEW TRADE
+              </motion.button>
+            ) : transactionStep === "failed" ? (
+              <div className="mt-6">
+                <div className="w-full py-4 bg-red-900/50 border border-red-500/50 rounded-xl text-red-400 font-medium text-center mb-2">
+                  ✗ TRADE FAILED
+                </div>
+                {errorMessage && (
+                  <p className="text-xs text-red-400 text-center mb-2">
+                    {errorMessage}
+                  </p>
+                )}
+                <motion.button
+                  onClick={resetTransaction}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  className="w-full py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-zinc-300 font-medium hover:bg-zinc-700 transition-all"
+                >
+                  TRY AGAIN
+                </motion.button>
+              </div>
+            ) : (
+              <div className="w-full mt-6 py-4 bg-zinc-800 border border-zinc-700 rounded-xl text-zinc-400 font-medium text-center">
+                PROCESSING...
+              </div>
+            )}
           </div>
         </motion.div>
 
-        {/* Right Side - Order Book & Settlement */}
+        {/* Right Side - Transaction Progress & Settlement */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="lg:col-span-2 space-y-4"
         >
-          {/* Order Book (Obfuscated) */}
+          {/* Transaction Progress */}
           <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6">
-            <h3 className="text-zinc-400 text-sm mb-4">
-              ORDER BOOK (OBFUSCATED)
-            </h3>
+            <h3 className="text-zinc-400 text-sm mb-4">TRANSACTION PROGRESS</h3>
 
-            {/* Blurred Order Book Visual */}
-            <div className="relative h-32 mb-4 overflow-hidden rounded-lg">
-              <div className="absolute inset-0 flex">
-                <div className="w-1/2 bg-gradient-to-r from-red-500/20 to-transparent">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <div
-                      key={`sell-${i}`}
-                      className="h-6 bg-red-500/30 mb-0.5"
-                      style={{ width: `${70 + Math.random() * 30}%` }}
-                    />
-                  ))}
+            <div className="space-y-4">
+              {/* Step 1: Executing Transaction */}
+              <div className="flex items-center gap-3">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                    getStepStatus("executing") === "completed"
+                      ? "bg-green-500"
+                      : getStepStatus("executing") === "active"
+                      ? "bg-cyan-500 animate-pulse"
+                      : "bg-zinc-700"
+                  }`}
+                >
+                  {getStepStatus("executing") === "completed" ? (
+                    <Check className="w-4 h-4 text-white" />
+                  ) : getStepStatus("executing") === "active" ? (
+                    <Loader2 className="w-4 h-4 text-white animate-spin" />
+                  ) : (
+                    <span className="text-xs text-zinc-400">1</span>
+                  )}
                 </div>
-                <div className="w-1/2 bg-gradient-to-l from-green-500/20 to-transparent">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <div
-                      key={`buy-${i}`}
-                      className="h-6 bg-green-500/30 mb-0.5 ml-auto"
-                      style={{ width: `${70 + Math.random() * 30}%` }}
-                    />
-                  ))}
+                <div className="flex-1">
+                  <p
+                    className={`text-sm ${
+                      getStepStatus("executing") === "active"
+                        ? "text-cyan-400"
+                        : getStepStatus("executing") === "completed"
+                        ? "text-green-400"
+                        : "text-zinc-500"
+                    }`}
+                  >
+                    Executing Transaction
+                  </p>
                 </div>
               </div>
-              <div className="absolute inset-0 backdrop-blur-sm" />
+
+              {/* Step 2: Sign Transaction */}
+              <div className="flex items-center gap-3">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                    getStepStatus("signing") === "completed"
+                      ? "bg-green-500"
+                      : getStepStatus("signing") === "active"
+                      ? "bg-cyan-500 animate-pulse"
+                      : "bg-zinc-700"
+                  }`}
+                >
+                  {getStepStatus("signing") === "completed" ? (
+                    <Check className="w-4 h-4 text-white" />
+                  ) : getStepStatus("signing") === "active" ? (
+                    <Loader2 className="w-4 h-4 text-white animate-spin" />
+                  ) : (
+                    <span className="text-xs text-zinc-400">2</span>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p
+                    className={`text-sm ${
+                      getStepStatus("signing") === "active"
+                        ? "text-cyan-400"
+                        : getStepStatus("signing") === "completed"
+                        ? "text-green-400"
+                        : "text-zinc-500"
+                    }`}
+                  >
+                    Sign Transaction
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 3: Create ZK Proof */}
+              <div className="flex items-start gap-3">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    getStepStatus("zk-proof") === "completed"
+                      ? "bg-green-500"
+                      : getStepStatus("zk-proof") === "active"
+                      ? "bg-cyan-500 animate-pulse"
+                      : "bg-zinc-700"
+                  }`}
+                >
+                  {getStepStatus("zk-proof") === "completed" ? (
+                    <Check className="w-4 h-4 text-white" />
+                  ) : getStepStatus("zk-proof") === "active" ? (
+                    <Shield className="w-4 h-4 text-white animate-pulse" />
+                  ) : (
+                    <span className="text-xs text-zinc-400">3</span>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p
+                    className={`text-sm ${
+                      getStepStatus("zk-proof") === "active"
+                        ? "text-cyan-400"
+                        : getStepStatus("zk-proof") === "completed"
+                        ? "text-green-400"
+                        : "text-zinc-500"
+                    }`}
+                  >
+                    Create ZK Proof
+                  </p>
+                  {getStepStatus("zk-proof") === "active" && (
+                    <div className="mt-2">
+                      <div className="flex items-center justify-between text-xs text-zinc-500 mb-1">
+                        <span>Generating proof...</span>
+                        <span>{zkProofProgress}%</span>
+                      </div>
+                      <div className="w-full h-2 bg-zinc-700 rounded-full overflow-hidden">
+                        <motion.div
+                          className="h-full bg-gradient-to-r from-cyan-500 to-blue-500"
+                          initial={{ width: 0 }}
+                          animate={{ width: `${zkProofProgress}%` }}
+                          transition={{ duration: 0.2 }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Step 4: Done */}
+              <div className="flex items-center gap-3">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                    getStepStatus("done") === "completed" ||
+                    transactionStep === "done"
+                      ? "bg-green-500"
+                      : "bg-zinc-700"
+                  }`}
+                >
+                  {transactionStep === "done" ? (
+                    <Check className="w-4 h-4 text-white" />
+                  ) : (
+                    <span className="text-xs text-zinc-400">4</span>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p
+                    className={`text-sm ${
+                      transactionStep === "done"
+                        ? "text-green-400"
+                        : "text-zinc-500"
+                    }`}
+                  >
+                    Done
+                  </p>
+                </div>
+              </div>
             </div>
-
-            <button className="w-full py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-400 text-sm flex items-center justify-center gap-2 hover:bg-zinc-700 transition-colors">
-              <Eye className="w-4 h-4" />
-              PRIVILEGED VIEW
-            </button>
-
-            <p className="text-xs text-zinc-600 mt-4">
-              Liquidity is aggregated from institutional dark pools. Execution
-              is verified via SP1 ZK proofs ensuring privacy without pre-trade
-              linkage.
-            </p>
           </div>
+
+          {/* ZK Proof Data (shown when generated) */}
+          {zkProofData && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6"
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <Shield className="w-4 h-4 text-cyan-400" />
+                <h3 className="text-zinc-400 text-sm">ZK PROOF DATA</h3>
+              </div>
+              <div className="space-y-3 text-xs font-mono">
+                <div>
+                  <p className="text-zinc-500 mb-1">Commitment:</p>
+                  <p className="text-cyan-400 break-all">
+                    {zkProofData.commitment.slice(0, 42)}...
+                  </p>
+                </div>
+                <div>
+                  <p className="text-zinc-500 mb-1">Nullifier:</p>
+                  <p className="text-purple-400 break-all">
+                    {zkProofData.nullifier.slice(0, 42)}...
+                  </p>
+                </div>
+                <div>
+                  <p className="text-zinc-500 mb-1">Proof:</p>
+                  <p className="text-green-400 break-all">
+                    {zkProofData.proof.slice(0, 42)}...
+                  </p>
+                </div>
+              </div>
+              <div className="mt-4 flex items-center gap-2 text-xs text-green-400">
+                <Zap className="w-3 h-3" />
+                <span>Proof verified on SP1 Enclave</span>
+              </div>
+            </motion.div>
+          )}
 
           {/* Settlement Info */}
           <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6">
@@ -241,6 +638,10 @@ export default function Trade() {
               <div className="flex justify-between">
                 <span className="text-zinc-500">Fees</span>
                 <span className="text-cyan-400">0.05% (Institutional)</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-zinc-500">Exchange Rate</span>
+                <span className="text-white">1 MTKN = 0.5 MGLD</span>
               </div>
             </div>
           </div>
