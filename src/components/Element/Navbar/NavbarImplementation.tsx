@@ -6,7 +6,6 @@ import { AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { ArrowUpRight, LucideIcon } from "lucide-react";
 import { cn } from "@/src/lib/utils";
-import { useTransfer } from "@/src/contexts/TransferContext";
 
 interface NavItem {
   name: string;
@@ -23,11 +22,6 @@ interface NavBarProps {
 export function NavBar({ items, className }: NavBarProps) {
   const [activeTab, setActiveTab] = useState(items[0].name);
   const [showTransferButton, setShowTransferButton] = useState(false);
-  const { openTransfer } = useTransfer();
-
-  const handleOpenTransfer = () => {
-    openTransfer();
-  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -97,7 +91,7 @@ export function NavBar({ items, className }: NavBarProps) {
             //     <Icon size={18} strokeWidth={2.5} />
             //   </span>
 
-            <motion.button
+            <motion.div
               initial={{ opacity: 0, scale: 0.8, x: -10 }}
               animate={{ opacity: 1, scale: 1, x: 0 }}
               exit={{ opacity: 0, scale: 0.8, x: -10 }}
@@ -105,15 +99,18 @@ export function NavBar({ items, className }: NavBarProps) {
                 duration: 0.3,
                 ease: [0.4, 0, 0.2, 1],
               }}
-              onClick={handleOpenTransfer}
-              className="relative px-6 py-2 rounded-full font-semibold text-sm bg-teal-500 text-white hover:bg-teal-600 transition-colors shadow-lg"
             >
-              <span className="hidden md:inline">Launch Now</span>
-              <span className="md:hidden">
-                <ArrowUpRight size={18} strokeWidth={2.5} />
-              </span>
-              <div className="absolute inset-0 bg-midnight_violet-800/20 rounded-full blur-md -z-10" />
-            </motion.button>
+              <Link
+                href="/app"
+                className="relative px-6 py-2 rounded-full font-semibold text-sm bg-teal-500 text-white hover:bg-teal-600 transition-colors shadow-lg flex items-center"
+              >
+                <span className="hidden md:inline">Launch Now</span>
+                <span className="md:hidden">
+                  <ArrowUpRight size={18} strokeWidth={2.5} />
+                </span>
+                <div className="absolute inset-0 bg-midnight_violet-800/20 rounded-full blur-md -z-10" />
+              </Link>
+            </motion.div>
           )}
         </AnimatePresence>
       </div>
