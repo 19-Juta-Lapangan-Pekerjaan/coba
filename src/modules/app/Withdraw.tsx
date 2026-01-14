@@ -19,6 +19,7 @@ import { useApp } from "@/src/contexts/AppContext";
 import { SUPPORTED_TOKENS, DEFAULT_CHAIN_ID } from "@/src/lib/constants";
 import type { TokenInfo } from "@/src/lib/constants";
 import type { Note } from "@/src/wallet-sdk";
+import { getErrorMessage } from "@/src/lib/errorHandling";
 
 // ============================================================================
 // Types
@@ -217,7 +218,7 @@ export default function Withdraw() {
     } catch (error) {
       console.error("Withdraw failed:", error);
       updateState({
-        error: error instanceof Error ? error.message : "Withdrawal failed",
+        error: getErrorMessage(error),
         isProcessing: false,
         step: "confirm",
       });

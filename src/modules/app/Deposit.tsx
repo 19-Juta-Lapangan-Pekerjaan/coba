@@ -27,6 +27,7 @@ import {
   DEFAULT_CHAIN_ID,
 } from "@/src/lib/constants";
 import type { TokenInfo } from "@/src/lib/constants";
+import { getErrorMessage } from "@/src/lib/errorHandling";
 
 // ============================================================================
 // Types
@@ -174,7 +175,7 @@ export default function Deposit() {
     } catch (error) {
       console.error("Approval failed:", error);
       updateState({
-        error: error instanceof Error ? error.message : "Approval failed",
+        error: getErrorMessage(error),
         isApproving: false,
       });
     }
@@ -233,7 +234,7 @@ export default function Deposit() {
     } catch (error) {
       console.error("Deposit failed:", error);
       updateState({
-        error: error instanceof Error ? error.message : "Deposit failed",
+        error: getErrorMessage(error),
         isDepositing: false,
       });
     }

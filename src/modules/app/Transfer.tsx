@@ -8,6 +8,7 @@ import { formatUnits, parseUnits, isAddress } from "viem";
 
 import { useApp } from "@/src/contexts/AppContext";
 import { SUPPORTED_TOKENS, DEFAULT_CHAIN_ID } from "@/src/lib/constants";
+import { getErrorMessage } from "@/src/lib/errorHandling";
 
 // ============================================================================
 // Types
@@ -211,7 +212,7 @@ export default function Transfer() {
     } catch (error) {
       console.error("Transfer failed:", error);
       updateState({
-        error: error instanceof Error ? error.message : "Transfer failed",
+        error: getErrorMessage(error),
         isProcessing: false,
         step: "confirm",
       });
