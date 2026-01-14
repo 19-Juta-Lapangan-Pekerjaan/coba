@@ -333,25 +333,38 @@ export default function Deposit() {
 
       {/* Progress Steps */}
       <div className="flex items-center gap-2 mb-8">
-        {["input", "approve", "deposit", "success"].map((step, index) => {
+        {["input", "approve", "deposit", "success"].map((step, index, arr) => {
           const stepOrder = ["input", "approve", "deposit", "success"];
           const currentStepIndex = stepOrder.indexOf(state.step);
           const thisStepIndex = stepOrder.indexOf(step);
           const isCompleted = thisStepIndex < currentStepIndex;
           const isCurrent = state.step === step;
-          
+          const isLastStep = index === arr.length - 1;
+          const isSuccess = state.step === "success" && step === "success";
+
           return (
-            <div key={step} className="flex items-center gap-2 flex-1">
+            <div
+              key={step}
+              className={`flex items-center gap-2 ${
+                isLastStep ? "" : "flex-1"
+              }`}
+            >
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-                  isCurrent
+                  isSuccess
+                    ? "bg-green-500 text-white"
+                    : isCurrent
                     ? "bg-purple-500 text-white"
                     : isCompleted
-                      ? "bg-green-500 text-white"
-                      : "bg-zinc-800 text-zinc-500"
+                    ? "bg-green-500 text-white"
+                    : "bg-zinc-800 text-zinc-500"
                 }`}
               >
-                {isCompleted ? <Check className="w-4 h-4" /> : index + 1}
+                {isCompleted || isSuccess ? (
+                  <Check className="w-4 h-4" />
+                ) : (
+                  index + 1
+                )}
               </div>
               {index < 3 && (
                 <div
