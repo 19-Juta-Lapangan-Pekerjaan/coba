@@ -26,6 +26,46 @@ This application provides a user interface for:
 pnpm install
 ```
 
+### Setting Up Mantle Sepolia Testnet
+
+Before running the app, you need to add the Mantle Sepolia Testnet to your wallet:
+
+#### Option 1: Automatic (via Chainlist)
+
+1. Visit [Chainlist](https://chainlist.org/?search=mantle+sepolia&testnets=true)
+2. Search for **"Mantle Sepolia"**
+3. Click **"Add to Wallet"** and approve the request
+
+#### Option 2: Manual Configuration
+
+Add the network manually in your wallet (e.g., MetaMask) with these settings:
+
+| Field              | Value                                 |
+| ------------------ | ------------------------------------- |
+| Network Name       | Mantle Sepolia Testnet                |
+| RPC URL            | `https://rpc.sepolia.mantle.xyz`      |
+| Chain ID           | `5003`                                |
+| Currency Symbol    | `MNT`                                 |
+| Block Explorer URL | `https://explorer.sepolia.mantle.xyz` |
+
+### Getting Mock Tokens (mUSDT)
+
+To test deposits, you'll need some mock USDT tokens on Mantle Sepolia. Follow these steps to mint mUSDT:
+
+1. Navigate to the mUSDT contract on MantleScan:  
+   [Mock USDT Contract](https://sepolia.mantlescan.xyz/address/0x0A7853C1074722A766a27d4090986bF8A74DA39f#writeContract)
+
+2. Click **"Connect to Web3"** to connect your wallet
+
+3. Find the `mint` function and enter:
+
+   - **`to`**: Your wallet address
+   - **`amount`**: The amount to mint (in wei). For example, `10000000000000000000000` for 10,000 mUSDT
+
+4. Click **"Write"** and confirm the transaction in your wallet
+
+Once the transaction is confirmed, the mUSDT tokens will appear in your wallet and can be used for testing deposits.
+
 ### Development
 
 ```bash
@@ -272,46 +312,6 @@ gelap_wallet_lastBlock_{address} // Last synced block
 ```
 
 ## Testing
-
-### Setting Up Mantle Sepolia Testnet
-
-To interact with Gelap Privacy, you need to add the Mantle Sepolia Testnet to your wallet. Here's how:
-
-#### Option 1: Automatic (via Chainlist)
-
-1. Visit [Chainlist](https://chainlist.org/?search=mantle+sepolia&testnets=true)
-2. Search for **"Mantle Sepolia"**
-3. Click **"Add to Wallet"** and approve the request
-
-#### Option 2: Manual Configuration
-
-Add the network manually in your wallet (e.g., MetaMask) with these settings:
-
-| Field              | Value                                 |
-| ------------------ | ------------------------------------- |
-| Network Name       | Mantle Sepolia Testnet                |
-| RPC URL            | `https://rpc.sepolia.mantle.xyz`      |
-| Chain ID           | `5003`                                |
-| Currency Symbol    | `MNT`                                 |
-| Block Explorer URL | `https://explorer.sepolia.mantle.xyz` |
-
-### Getting Mock Tokens (mUSDT)
-
-Before testing deposits, you'll need some mock USDT tokens on Mantle Sepolia. Follow these steps to mint mUSDT:
-
-1. Navigate to the mUSDT contract on MantleScan:  
-   [Mock USDT Contract](https://sepolia.mantlescan.xyz/address/0x0A7853C1074722A766a27d4090986bF8A74DA39f#writeContract)
-
-2. Click **"Connect to Web3"** to connect your wallet
-
-3. Find the `mint` function and enter:
-
-   - **`to`**: Your wallet address
-   - **`amount`**: The amount to mint (in wei). For example, `10000000000000000000000` for 10,000 mUSDT
-
-4. Click **"Write"** and confirm the transaction in your wallet
-
-Once the transaction is confirmed, the mUSDT tokens will appear in your wallet and can be used for testing deposits.
 
 ### Manual Testing Checklist
 
