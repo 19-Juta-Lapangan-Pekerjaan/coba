@@ -354,11 +354,25 @@ export class ContractService {
 
   /**
    * Fetch AccountUpdated events (new commitments)
+   * Note: Mantle Sepolia RPC limits eth_getLogs to 10,000 blocks
    */
   async getAccountUpdatedEvents(
     fromBlock: bigint = 0n,
     toBlock: bigint | 'latest' = 'latest',
   ): Promise<AccountUpdatedEvent[]> {
+    // Get current block to calculate range
+    const currentBlock = await this.publicClient.getBlockNumber();
+
+    // Respect RPC limit of 10,000 blocks
+    const MAX_BLOCK_RANGE = 10000n;
+    let actualFromBlock = fromBlock;
+
+    // If fromBlock is 0 or query range exceeds limit, adjust
+    if (toBlock === 'latest') {
+      const rangeStart = currentBlock > MAX_BLOCK_RANGE ? currentBlock - MAX_BLOCK_RANGE : 0n;
+      actualFromBlock = fromBlock > rangeStart ? fromBlock : rangeStart;
+    }
+
     const logs = await this.publicClient.getLogs({
       address: this.contractAddress,
       event: {
@@ -369,7 +383,7 @@ export class ContractService {
           { type: 'bytes', name: 'encryptedMemo', indexed: false },
         ],
       },
-      fromBlock,
+      fromBlock: actualFromBlock,
       toBlock,
     });
 
