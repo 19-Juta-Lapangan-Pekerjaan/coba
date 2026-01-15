@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
+import { useAccount } from "wagmi";
 import * as motion from "motion/react-client";
 import {
   Lock,
@@ -10,6 +11,9 @@ import {
   Shield,
   Zap,
 } from "lucide-react";
+
+import { useApp } from "@/src/contexts/AppContext";
+import { getErrorMessage } from "@/src/lib/errorHandling";
 
 // Mock token data - Mock Token and Mock Gold
 interface Token {
@@ -61,6 +65,9 @@ interface ZKProofData {
 }
 
 export default function Trade() {
+  const { privacyWallet, refreshBalance } = useApp();
+  const { isConnected } = useAccount();
+
   const [sellToken, setSellToken] = useState(tokenData[0]);
   const [buyToken, setBuyToken] = useState(tokenData[1]);
   const [sellAmount, setSellAmount] = useState("");
@@ -160,30 +167,58 @@ export default function Trade() {
     setTransactionStep("zk-proof");
     setZkProofProgress(0);
 
-    // Simulate ZK proof generation with progress
-    for (let i = 0; i <= 100; i += Math.floor(Math.random() * 15) + 5) {
-      setZkProofProgress(Math.min(i, 100));
-      await new Promise((resolve) =>
-        setTimeout(resolve, 200 + Math.random() * 300)
-      );
+    try {
+      // Simulate ZK proof generation with progress
+      for (let i = 0; i <= 100; i += Math.floor(Math.random() * 15) + 5) {
+        setZkProofProgress(Math.min(i, 100));
+        await new Promise((resolve) =>
+          setTimeout(resolve, 50 + Math.random() * 100)
+        );
+      }
+      setZkProofProgress(100);
+
+      // Generate mock proof using library (for correct format)
+      // Dynamically import to avoid server-side issues
+      const { createMockSwapProof } = await import("@/src/wallet-sdk/mockProofs");
+      const proof = createMockSwapProof(); // Generates valid mock proof structure
+
+      // Display proof data for UI
+      setZkProofData({
+        commitment: "0x...", // Simplified for display
+        nullifier: "0x...",
+        witness: "0x...",
+        proof: proof.proofBytes,
+        publicInputs: [proof.publicInputs]
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // Step 4: Execute on Blockchain
+      if (privacyWallet) {
+        const { txHash } = await privacyWallet.executeSwap(
+          proof.publicInputs,
+          proof.proofBytes
+        );
+        // Wait for transaction
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await refreshBalance();
+      }
+
+      // Update local balances (optimistic)
+      const buyValue = parseFloat(buyAmount);
+      setBalances((prev) => ({
+        ...prev,
+        [sellToken.id]: prev[sellToken.id] - sellValue,
+        [buyToken.id]: prev[buyToken.id] + buyValue,
+      }));
+
+      setTransactionStep("done");
+
+    } catch (error) {
+      console.error("Trade failed:", error);
+      setErrorMessage(getErrorMessage(error));
+      setTransactionStep("failed");
     }
-    setZkProofProgress(100);
-
-    // Generate the mock proof data
-    const proofData = generateMockZKProof();
-    setZkProofData(proofData);
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    // Update balances after successful trade
-    const buyValue = parseFloat(buyAmount);
-    setBalances((prev) => ({
-      ...prev,
-      [sellToken.id]: prev[sellToken.id] - sellValue,
-      [buyToken.id]: prev[buyToken.id] + buyValue,
-    }));
-
-    // Step 4: Done
-    setTransactionStep("done");
   };
 
   const resetTransaction = () => {
@@ -270,9 +305,8 @@ export default function Trade() {
                   onChange={(e) => handleSellAmountChange(e.target.value)}
                   placeholder="0.00"
                   disabled={transactionStep !== "idle"}
-                  className={`w-full bg-transparent text-2xl text-white placeholder-zinc-600 outline-none disabled:opacity-50 ${
-                    isInsufficientBalance ? "text-red-400" : ""
-                  }`}
+                  className={`w-full bg-transparent text-2xl text-white placeholder-zinc-600 outline-none disabled:opacity-50 ${isInsufficientBalance ? "text-red-400" : ""
+                    }`}
                 />
                 {isInsufficientBalance && transactionStep === "idle" && (
                   <p className="mt-1 text-xs text-red-400">
@@ -357,9 +391,8 @@ export default function Trade() {
                     className="w-4 h-4 text-cyan-500 bg-zinc-800 border-zinc-600 focus:ring-cyan-500 focus:ring-offset-zinc-900 disabled:opacity-50"
                   />
                   <span
-                    className={`text-sm ${
-                      orderType === type.id ? "text-white" : "text-zinc-500"
-                    }`}
+                    className={`text-sm ${orderType === type.id ? "text-white" : "text-zinc-500"
+                      }`}
                   >
                     {type.label}
                   </span>
@@ -376,17 +409,16 @@ export default function Trade() {
                   scale: isExecuteDisabled || isInsufficientBalance ? 1 : 1.01,
                 }}
                 whileTap={{ scale: 0.99 }}
-                className={`w-full mt-6 py-4 rounded-xl font-medium transition-all ${
-                  isExecuteDisabled || isInsufficientBalance
-                    ? "bg-zinc-800 border border-zinc-700 text-zinc-500 cursor-not-allowed"
-                    : "bg-gradient-to-r from-cyan-600 to-blue-600 text-white hover:from-cyan-500 hover:to-blue-500"
-                }`}
+                className={`w-full mt-6 py-4 rounded-xl font-medium transition-all ${isExecuteDisabled || isInsufficientBalance
+                  ? "bg-zinc-800 border border-zinc-700 text-zinc-500 cursor-not-allowed"
+                  : "bg-gradient-to-r from-cyan-600 to-blue-600 text-white hover:from-cyan-500 hover:to-blue-500"
+                  }`}
               >
                 {isInsufficientBalance
                   ? "INSUFFICIENT BALANCE"
                   : sellAmount && parseFloat(sellAmount) > 0
-                  ? "EXECUTE TRADE"
-                  : "ENTER VOLUME"}
+                    ? "EXECUTE TRADE"
+                    : "ENTER VOLUME"}
               </motion.button>
             ) : transactionStep === "done" ? (
               <motion.button
@@ -439,13 +471,12 @@ export default function Trade() {
               {/* Step 1: Executing Transaction */}
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    getStepStatus("executing") === "completed"
-                      ? "bg-green-500"
-                      : getStepStatus("executing") === "active"
+                  className={`w-8 h-8 rounded-full flex items-center justify-center ${getStepStatus("executing") === "completed"
+                    ? "bg-green-500"
+                    : getStepStatus("executing") === "active"
                       ? "bg-cyan-500 animate-pulse"
                       : "bg-zinc-700"
-                  }`}
+                    }`}
                 >
                   {getStepStatus("executing") === "completed" ? (
                     <Check className="w-4 h-4 text-white" />
@@ -457,13 +488,12 @@ export default function Trade() {
                 </div>
                 <div className="flex-1">
                   <p
-                    className={`text-sm ${
-                      getStepStatus("executing") === "active"
-                        ? "text-cyan-400"
-                        : getStepStatus("executing") === "completed"
+                    className={`text-sm ${getStepStatus("executing") === "active"
+                      ? "text-cyan-400"
+                      : getStepStatus("executing") === "completed"
                         ? "text-green-400"
                         : "text-zinc-500"
-                    }`}
+                      }`}
                   >
                     Executing Transaction
                   </p>
@@ -473,13 +503,12 @@ export default function Trade() {
               {/* Step 2: Sign Transaction */}
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    getStepStatus("signing") === "completed"
-                      ? "bg-green-500"
-                      : getStepStatus("signing") === "active"
+                  className={`w-8 h-8 rounded-full flex items-center justify-center ${getStepStatus("signing") === "completed"
+                    ? "bg-green-500"
+                    : getStepStatus("signing") === "active"
                       ? "bg-cyan-500 animate-pulse"
                       : "bg-zinc-700"
-                  }`}
+                    }`}
                 >
                   {getStepStatus("signing") === "completed" ? (
                     <Check className="w-4 h-4 text-white" />
@@ -491,13 +520,12 @@ export default function Trade() {
                 </div>
                 <div className="flex-1">
                   <p
-                    className={`text-sm ${
-                      getStepStatus("signing") === "active"
-                        ? "text-cyan-400"
-                        : getStepStatus("signing") === "completed"
+                    className={`text-sm ${getStepStatus("signing") === "active"
+                      ? "text-cyan-400"
+                      : getStepStatus("signing") === "completed"
                         ? "text-green-400"
                         : "text-zinc-500"
-                    }`}
+                      }`}
                   >
                     Sign Transaction
                   </p>
@@ -507,13 +535,12 @@ export default function Trade() {
               {/* Step 3: Create ZK Proof */}
               <div className="flex items-start gap-3">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    getStepStatus("zk-proof") === "completed"
-                      ? "bg-green-500"
-                      : getStepStatus("zk-proof") === "active"
+                  className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${getStepStatus("zk-proof") === "completed"
+                    ? "bg-green-500"
+                    : getStepStatus("zk-proof") === "active"
                       ? "bg-cyan-500 animate-pulse"
                       : "bg-zinc-700"
-                  }`}
+                    }`}
                 >
                   {getStepStatus("zk-proof") === "completed" ? (
                     <Check className="w-4 h-4 text-white" />
@@ -525,13 +552,12 @@ export default function Trade() {
                 </div>
                 <div className="flex-1">
                   <p
-                    className={`text-sm ${
-                      getStepStatus("zk-proof") === "active"
-                        ? "text-cyan-400"
-                        : getStepStatus("zk-proof") === "completed"
+                    className={`text-sm ${getStepStatus("zk-proof") === "active"
+                      ? "text-cyan-400"
+                      : getStepStatus("zk-proof") === "completed"
                         ? "text-green-400"
                         : "text-zinc-500"
-                    }`}
+                      }`}
                   >
                     Create ZK Proof
                   </p>
@@ -557,12 +583,11 @@ export default function Trade() {
               {/* Step 4: Done */}
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    getStepStatus("done") === "completed" ||
+                  className={`w-8 h-8 rounded-full flex items-center justify-center ${getStepStatus("done") === "completed" ||
                     transactionStep === "done"
-                      ? "bg-green-500"
-                      : "bg-zinc-700"
-                  }`}
+                    ? "bg-green-500"
+                    : "bg-zinc-700"
+                    }`}
                 >
                   {transactionStep === "done" ? (
                     <Check className="w-4 h-4 text-white" />
@@ -572,11 +597,10 @@ export default function Trade() {
                 </div>
                 <div className="flex-1">
                   <p
-                    className={`text-sm ${
-                      transactionStep === "done"
-                        ? "text-green-400"
-                        : "text-zinc-500"
-                    }`}
+                    className={`text-sm ${transactionStep === "done"
+                      ? "text-green-400"
+                      : "text-zinc-500"
+                      }`}
                   >
                     Done
                   </p>

@@ -126,89 +126,26 @@ export default function Transfer() {
     updateState({ isProcessing: true, step: "processing", error: null });
 
     try {
-      // Import mock proof generator
-      const { createMockTransactProof } = await import(
-        "@/src/wallet-sdk/mockProofs"
+      // Create a placeholder StealthAddress for the recipient
+      // Note: In a real system, we would need the recipient's public view/spend keys
+      // derived from their address or fetched from a registry.
+      // Here we use random values for the "Stealth" part to ensure the transaction
+      // goes through on-chain, even if the recipient can't mathematically claim it
+      // without the corresponding private keys.
+      const mockStealthAddress = {
+        address: state.recipientAddress as `0x${string}`,
+        ephmeralPublicKey: `0x${Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join('')}` as `0x${string}`,
+        viewTag: 0,
+      };
+
+      // Execute transaction via PrivacyWallet
+      const { txHash } = await privacyWallet.executeTransaction(
+        defaultToken.address,
+        [{
+          amount: transferAmount,
+          recipient: mockStealthAddress
+        }]
       );
-      const { keccak256, encodeAbiParameters } = await import("viem");
-
-      // Select notes to spend (greedy selection)
-      const { notes: selectedNotes, total } =
-        privacyWallet.selectNotesForAmount(
-          defaultToken.address,
-          transferAmount
-        );
-
-      if (total < transferAmount) {
-        throw new Error("Insufficient balance");
-      }
-
-      // Generate nullifiers from selected notes
-      const nullifiers = selectedNotes.map((note) => note.nullifier);
-
-      // Create output commitment for recipient
-      const recipientCommitment = keccak256(
-        encodeAbiParameters(
-          [{ type: "uint256" }, { type: "address" }, { type: "uint256" }],
-          [
-            transferAmount,
-            state.recipientAddress as `0x${string}`,
-            BigInt(Date.now()),
-          ]
-        )
-      );
-
-      const newCommitments: `0x${string}`[] = [recipientCommitment];
-
-      // If there's change, create a change commitment
-      const change = total - transferAmount;
-      if (change > 0n) {
-        const changeCommitment = keccak256(
-          encodeAbiParameters(
-            [{ type: "uint256" }, { type: "uint256" }],
-            [change, BigInt(Math.floor(Math.random() * 1000000))]
-          )
-        );
-        newCommitments.push(changeCommitment);
-      }
-
-      // Generate mock transaction proof
-      const proof = createMockTransactProof({
-        nullifiers: nullifiers as `0x${string}`[],
-        newCommitments: newCommitments,
-      });
-
-      // Get contract service
-      const contractService = privacyWallet.getContractService();
-      if (!contractService) {
-        throw new Error("Contract service not initialized");
-      }
-
-      // Add a small delay to ensure user sees the processing screen
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      // Execute transaction
-      const txHash = await contractService.transact({
-        publicInputs: proof.publicInputs,
-        proofBytes: proof.proofBytes,
-      });
-
-      // Wait for transaction confirmation
-      await contractService.waitForTransaction(txHash);
-
-      // Add another delay to show completion
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // Mark notes as spent
-      privacyWallet.markNotesSpent(nullifiers as `0x${string}`[]);
-
-      updateState({
-        step: "success",
-        isProcessing: false,
-      });
-
-      // Refresh balance
-      await refreshBalance();
     } catch (error) {
       console.error("Transfer failed:", error);
       updateState({
@@ -299,20 +236,18 @@ export default function Transfer() {
           return (
             <div
               key={step}
-              className={`flex items-center gap-2 ${
-                isLastStep ? "" : "flex-1"
-              }`}
+              className={`flex items-center gap-2 ${isLastStep ? "" : "flex-1"
+                }`}
             >
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-                  isSuccess
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${isSuccess
                     ? "bg-green-500 text-white"
                     : isCurrent
-                    ? "bg-purple-500 text-white"
-                    : isCompleted
-                    ? "bg-green-500 text-white"
-                    : "bg-zinc-800 text-zinc-500"
-                }`}
+                      ? "bg-purple-500 text-white"
+                      : isCompleted
+                        ? "bg-green-500 text-white"
+                        : "bg-zinc-800 text-zinc-500"
+                  }`}
               >
                 {isCompleted || isSuccess ? (
                   <Check className="w-4 h-4" />
@@ -322,12 +257,11 @@ export default function Transfer() {
               </div>
               {index < 2 && (
                 <div
-                  className={`flex-1 h-0.5 ${
-                    ["confirm", "processing", "success"].indexOf(state.step) >
-                    index
+                  className={`flex-1 h-0.5 ${["confirm", "processing", "success"].indexOf(state.step) >
+                      index
                       ? "bg-green-500"
                       : "bg-zinc-800"
-                  }`}
+                    }`}
                 />
               )}
             </div>

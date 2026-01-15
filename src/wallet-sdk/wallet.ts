@@ -388,6 +388,188 @@ export class PrivacyWallet {
   }
 
   /**
+   * Execute a withdrawal
+   */
+  async executeWithdraw(
+    token: Address,
+    amount: bigint,
+    receiver: Address,
+    notes: Note[]
+  ): Promise<{ txHash: Hex }> {
+    if (!this.contractService) {
+      throw new Error("Contract service not initialized");
+    }
+
+    // 1. Prepare inputs
+    const nullifiers = notes.map((n) => n.nullifier);
+    const inputNotes = notes.map((n) => ({
+      commitment: n.commitment,
+      amount: n.amount,
+      blinding: n.blinding,
+      leafIndex: n.leafIndex,
+      pathElements: this.generateMerkleProof(n.leafIndex).pathElements,
+      pathIndices: this.generateMerkleProof(n.leafIndex).pathIndices,
+    }));
+
+    // 2. Request Proof (Real or Mock via ContractService)
+    const proofResponse = await this.contractService.requestWithdrawProof({
+      inputNotes,
+      withdrawAmount: amount,
+      receiver,
+      token,
+      currentRoot: this.state.merkleTree.root,
+    });
+
+    if (!proofResponse.success) {
+      throw new Error(proofResponse.error || "Failed to generate withdrawal proof");
+    }
+
+    // 3. Execute on Contract
+    const txHash = await this.contractService.withdraw({
+      publicInputs: proofResponse.publicInputs,
+      proofBytes: proofResponse.proofBytes,
+      receiver,
+    });
+
+    // 4. Wait for confirmation
+    const result = await this.contractService.waitForTransaction(txHash);
+    if (!result.success) {
+      throw new Error("Withdrawal transaction failed");
+    }
+
+    // 5. Update State
+    this.markNotesSpent(nullifiers);
+
+    return { txHash };
+  }
+
+  /**
+   * Execute a private transaction (Transfer)
+   */
+  async executeTransaction(
+    token: Address,
+    outputs: { amount: bigint; recipient: StealthAddress }[]
+  ): Promise<{ txHash: Hex }> {
+    if (!this.contractService) {
+      throw new Error("Contract service not initialized");
+    }
+
+    // Calculate total output amount
+    const totalOutput = outputs.reduce((sum, out) => sum + out.amount, 0n);
+
+    // Select notes
+    const { notes: inputNotesArray, total: totalInput } = this.selectNotesForAmount(
+      token,
+      totalOutput
+    );
+
+    if (totalInput < totalOutput) {
+      throw new Error("Insufficient balance");
+    }
+
+    // Create change output if needed
+    const change = totalInput - totalOutput;
+    const finalOutputs = [...outputs];
+
+    // For change, we send to ourselves (new stealth address for privacy or just re-use view/spend keys logic?)
+    // In this simplified version, we just create a commitment for ourselves using our public keys
+    if (change > 0n) {
+      const myPublicKeys = this.getPublicKeys();
+      if (!myPublicKeys) throw new Error("Wallet keys not found");
+
+      const changeAddress = StealthAddressGenerator.generateStealthAddress(
+        myPublicKeys.viewPublicKey,
+        myPublicKeys.spendPublicKey
+      );
+
+      finalOutputs.push({
+        amount: change,
+        recipient: changeAddress
+      });
+    }
+
+    // Prepare inputs for prover
+    const inputNotes = inputNotesArray.map((n) => ({
+      commitment: n.commitment,
+      amount: n.amount,
+      blinding: n.blinding,
+      leafIndex: n.leafIndex,
+      pathElements: this.generateMerkleProof(n.leafIndex).pathElements,
+      pathIndices: this.generateMerkleProof(n.leafIndex).pathIndices,
+    }));
+
+    // Prepare outputs for prover (need to derive shared secrets/blindings etc, but simplified here)
+    // The prover/circuits usually need the blinding factors for outputs.
+    // For this implementation, we will assume the prover generates them or we pass a simplified structure.
+    // Given the `TransactionProofRequest` interface in `contractService.ts` only asks for:
+    // outputNotes: { amount: bigint; recipientPublicKey: Hex; }[]
+    // We will map to that.
+
+    const outputNotes = finalOutputs.map((out) => ({
+      amount: out.amount,
+      recipientPublicKey: out.recipient.ephmeralPublicKey // Typo in types.ts 'ephmeral' -> 'ephemeral' but matching existing code
+    }));
+
+    // Request Proof
+    const proofResponse = await this.contractService.requestTransactionProof({
+      inputNotes,
+      outputNotes,
+      currentRoot: this.state.merkleTree.root,
+    });
+
+    if (!proofResponse.success) {
+      throw new Error(proofResponse.error || "Failed to generate transaction proof");
+    }
+
+    // Execute on Contract
+    const txHash = await this.contractService.transact({
+      publicInputs: proofResponse.publicInputs,
+      proofBytes: proofResponse.proofBytes,
+    });
+
+    // Wait for confirmation
+    const result = await this.contractService.waitForTransaction(txHash);
+    if (!result.success) {
+      throw new Error("Transaction execution failed");
+    }
+
+    // Update State (Mark inputs as spent)
+    const nullifiers = inputNotesArray.map(n => n.nullifier);
+    this.markNotesSpent(nullifiers);
+
+    // Note: Output notes are added via event syncing usually, but we could optimistically add them here if they are ours.
+    // For simplicity, we rely on the `syncWithChain` or event listener to pick up new incoming notes.
+
+    return { txHash };
+  }
+
+  /**
+   * Execute a Swap
+   */
+  async executeSwap(
+    publicInputs: Hex,
+    proofBytes: Hex
+  ): Promise<{ txHash: Hex }> {
+    if (!this.contractService) {
+      throw new Error("Contract service not initialized");
+    }
+
+    // Execute on Contract
+    const txHash = await this.contractService.executeSwap({
+      publicInputs,
+      proofBytes
+    });
+
+    // Wait for confirmation
+    const result = await this.contractService.waitForTransaction(txHash);
+    if (!result.success) {
+      throw new Error("Swap execution failed");
+    }
+
+    return { txHash };
+  }
+
+  /**
    * Mark notes as spent
    */
   markNotesSpent(nullifiers: Hex[]): void {

@@ -172,40 +172,16 @@ export default function Withdraw() {
     updateState({ isProcessing: true, step: "generating", error: null });
 
     try {
-      // Import mock proof generator
-      const { createMockWithdrawProof } = await import(
-        "@/src/wallet-sdk/mockProofs"
+      // Execute withdrawal via PrivacyWallet (handles proof generation via ContractService)
+      const { txHash } = await privacyWallet.executeWithdraw(
+        state.selectedToken.address,
+        withdrawAmount,
+        state.receiver as `0x${string}`,
+        state.selectedNotes
       );
 
-      // Generate nullifiers from selected notes
-      const nullifiers = state.selectedNotes.map((note) => note.nullifier);
 
-      // Generate mock withdrawal proof
-      const proof = createMockWithdrawProof({
-        token: state.selectedToken.address,
-        amount: withdrawAmount,
-        receiver: state.receiver as `0x${string}`,
-        nullifiers: nullifiers as `0x${string}`[],
-      });
 
-      // Get contract service
-      const contractService = privacyWallet.getContractService();
-      if (!contractService) {
-        throw new Error("Contract service not initialized");
-      }
-
-      // Execute withdrawal transaction
-      const txHash = await contractService.withdraw({
-        publicInputs: proof.publicInputs,
-        proofBytes: proof.proofBytes,
-        receiver: state.receiver as `0x${string}`,
-      });
-
-      // Wait for transaction confirmation
-      await contractService.waitForTransaction(txHash);
-
-      // Mark notes as spent
-      privacyWallet.markNotesSpent(nullifiers as `0x${string}`[]);
 
       updateState({
         txHash,
@@ -313,20 +289,18 @@ export default function Withdraw() {
           return (
             <div
               key={step}
-              className={`flex items-center gap-2 ${
-                isLastStep ? "" : "flex-1"
-              }`}
+              className={`flex items-center gap-2 ${isLastStep ? "" : "flex-1"
+                }`}
             >
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-                  isSuccess
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${isSuccess
                     ? "bg-green-500 text-white"
                     : isCurrent
-                    ? "bg-purple-500 text-white"
-                    : isCompleted
-                    ? "bg-green-500 text-white"
-                    : "bg-zinc-800 text-zinc-500"
-                }`}
+                      ? "bg-purple-500 text-white"
+                      : isCompleted
+                        ? "bg-green-500 text-white"
+                        : "bg-zinc-800 text-zinc-500"
+                  }`}
               >
                 {isCompleted || isSuccess ? (
                   <Check className="w-4 h-4" />
@@ -336,13 +310,12 @@ export default function Withdraw() {
               </div>
               {index < 3 && (
                 <div
-                  className={`flex-1 h-0.5 ${
-                    ["amount", "confirm", "generating", "success"].indexOf(
-                      state.step
-                    ) > index
+                  className={`flex-1 h-0.5 ${["amount", "confirm", "generating", "success"].indexOf(
+                    state.step
+                  ) > index
                       ? "bg-green-500"
                       : "bg-zinc-800"
-                  }`}
+                    }`}
                 />
               )}
             </div>
@@ -380,20 +353,18 @@ export default function Withdraw() {
                   <button
                     key={note.commitment}
                     onClick={() => toggleNoteSelection(note)}
-                    className={`w-full p-4 rounded-lg border transition-all text-left ${
-                      isSelected
+                    className={`w-full p-4 rounded-lg border transition-all text-left ${isSelected
                         ? "border-purple-500 bg-purple-500/10"
                         : "border-zinc-700 bg-zinc-800/50 hover:border-zinc-600"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div
-                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                            isSelected
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isSelected
                               ? "border-purple-500 bg-purple-500"
                               : "border-zinc-600"
-                          }`}
+                            }`}
                         >
                           {isSelected && (
                             <Check className="w-3 h-3 text-white" />

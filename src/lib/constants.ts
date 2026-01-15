@@ -10,8 +10,8 @@ export const CONTRACT_ADDRESSES = {
   // Mantle Sepolia Testnet
   [mantleSepoliaTestnet.id]: {
     gelapShieldedAccount:
-      "0x54EC23CBCE1A9d33F05C4d3d79Ec28Aff3c8ce8D" as Address,
-    mockSP1Verifier: "0x79117dbB5A08B03cD796d06EdeEC6e0f2c554f4B" as Address,
+      "0x0D5Ff322a648a6Ff62C5deA028ea222dFefc5225" as Address,
+    mockSP1Verifier: "0x353eab5168B94e69e200A20868fFB1C4ABc6Ad3c" as Address,
   },
   // Mantle Mainnet (placeholder - update when deployed)
   [mantle.id]: {
@@ -41,9 +41,9 @@ export const SUPPORTED_TOKENS: Record<number, TokenInfo[]> = {
     // Only ERC20 tokens can be deposited to the shielded pool
     // Native MNT cannot be deposited directly (shown separately as WMNT balance)
     {
-      address: "0x65e37B558F64E2Be5768DB46DF22F93d85741A9E" as Address,
-      symbol: "SepMNT",
-      name: "Sepolia Mantle Token",
+      address: "0x0A7853C1074722A766a27d4090986bF8A74DA39f" as Address,
+      symbol: "mUSDT",
+      name: "Mock Tether",
       decimals: 18,
     },
   ],
