@@ -263,7 +263,7 @@ export class ContractService {
       args: [params.token, params.amount, params.commitment, params.encryptedMemo || '0x'],
       account,
       chain: this.walletClient.chain,
-      gas: 2500000n, // Higher gas limit for privacy pool operations (Merkle tree + storage)
+      gas: 5000000n, // High gas limit for privacy pool operations (Merkle tree + storage)
     });
 
     return hash;
@@ -289,7 +289,7 @@ export class ContractService {
       args: [params.publicInputs, params.proofBytes],
       account,
       chain: this.walletClient.chain,
-      gas: 3000000n, // Higher gas limit for ZK proof verification
+      gas: 5000000n, // High gas limit for ZK proof verification
     });
 
     return hash;
@@ -315,7 +315,7 @@ export class ContractService {
       args: [params.publicInputs, params.proofBytes, params.receiver],
       account,
       chain: this.walletClient.chain,
-      gas: 3000000n, // Higher gas limit for ZK proof verification
+      gas: 5000000n, // High gas limit for ZK proof verification
     });
 
     return hash;
@@ -341,6 +341,7 @@ export class ContractService {
       args: [params.publicInputs, params.proofBytes],
       account,
       chain: this.walletClient.chain,
+      gas: 5000000n, // High gas limit for Swap (verification + order tracking)
     });
 
     return hash;
