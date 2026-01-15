@@ -264,6 +264,11 @@ export default function Deposit() {
       return;
     }
 
+    if (tokenBalance && amount > tokenBalance.value) {
+      updateState({ error: "Insufficient balance" });
+      return;
+    }
+
     // Check allowance
     const currentAllowance = await checkAllowance();
 

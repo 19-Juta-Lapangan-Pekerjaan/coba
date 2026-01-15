@@ -256,15 +256,16 @@ export class ContractService {
       throw new Error('No account found in wallet');
     }
 
-    const hash = await this.walletClient.writeContract({
+    // Use simulateContract first to validate, then execute
+    const { request } = await this.publicClient.simulateContract({
+      account,
       address: this.contractAddress,
       abi: GELAP_SHIELDED_ACCOUNT_ABI,
       functionName: 'deposit',
       args: [params.token, params.amount, params.commitment, params.encryptedMemo || '0x'],
-      account,
-      chain: this.walletClient.chain,
-      gas: 5000000n, // High gas limit for privacy pool operations (Merkle tree + storage)
     });
+
+    const hash = await this.walletClient.writeContract(request);
 
     return hash;
   }
