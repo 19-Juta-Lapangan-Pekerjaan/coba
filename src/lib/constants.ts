@@ -7,11 +7,11 @@ import { sepolia } from "viem/chains";
 // ============================================================================
 
 export const CONTRACT_ADDRESSES = {
-  // Mantle Sepolia Testnet
+  // Mantle Sepolia Testnet (NEW DEPLOYMENT with testWithdraw)
   [mantleSepoliaTestnet.id]: {
     gelapShieldedAccount:
-      "0x0D5Ff322a648a6Ff62C5deA028ea222dFefc5225" as Address,
-    mockSP1Verifier: "0x353eab5168B94e69e200A20868fFB1C4ABc6Ad3c" as Address,
+      "0x055e766e3c8c5fe971d1f8ee8cf74f7524d3ec57" as Address,
+    mockSP1Verifier: "0x3507dfec95657859ff4ef0fa75ed22de1a1fe6db" as Address,
   },
   // Mantle Mainnet (placeholder - update when deployed)
   [mantle.id]: {
