@@ -153,8 +153,8 @@ Shielded Pool → [Select Notes] → [ZK Proof] → [Verify] → Public Address
 ### Contract Address (Mantle Sepolia)
 
 ```
-GelapShieldedAccount: 0x54EC23CBCE1A9d33F05C4d3d79Ec28Aff3c8ce8D
-MockSP1Verifier: 0x79117dbB5A08B03cD796d06EdeEC6e0f2c554f4B
+GelapShieldedAccount: 0x055E766e3C8c5fe971D1f8Ee8cf74f7524d3eC57
+MockSP1Verifier: 0x3507dFEC95657859fF4ef0fa75ed22de1a1FE6DB
 ```
 
 ### Key Functions
