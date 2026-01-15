@@ -325,6 +325,33 @@ export class ContractService {
   }
 
   /**
+   * TEST ONLY: Withdraw without proof verification
+   * This bypasses all ZK proof checks - for testing only!
+   */
+  async testWithdraw(token: Address, amount: bigint, receiver: Address): Promise<Hex> {
+    if (!this.walletClient) {
+      throw new Error('Wallet client required for write operations');
+    }
+
+    const [account] = await this.walletClient.getAddresses();
+    if (!account) {
+      throw new Error('No account found in wallet');
+    }
+
+    // Use simulateContract first for better error handling
+    const { request } = await this.publicClient.simulateContract({
+      account,
+      address: this.contractAddress,
+      abi: GELAP_SHIELDED_ACCOUNT_ABI,
+      functionName: 'testWithdraw',
+      args: [token, amount, receiver],
+    });
+
+    const hash = await this.walletClient.writeContract(request);
+    return hash;
+  }
+
+  /**
    * Execute a dark pool swap
    */
   async executeSwap(params: SwapParams): Promise<Hex> {

@@ -1,0 +1,32 @@
+﻿Account: 0x9D33851ce072d49BdDb056B2091d64f6b61F7E2f
+mUSDT Balance: 999999
+Allowance: 10
+Commitment: 0x510caf4c3d3005bf240c73dd935ba9d89aed320f8ac432401e95d6106e6474b1
+Sending deposit...
+TX Hash: 0xeb7c86eb063228a643e2cc6ac9174e032487f4a2d5afec20593c4e46058cf737
+node.exe : DEPOSIT 
+FAILED: Transaction 
+receipt with hash "0xeb
+7c86eb063228a643e2cc6ac
+9174e032487f4a2d5afec20
+593c4e46058cf737" 
+could not be found. 
+The Transaction may 
+not be processed on a 
+block yet.
+At C:\Program Files\nod
+ejs\npx.ps1:29 char:3
++   & $NODE_EXE 
+$NPX_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (DEPOSIT FAILE   
+ D:...on a block ye    
+t.:String) [], Rem    
+oteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 

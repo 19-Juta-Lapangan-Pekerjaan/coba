@@ -388,7 +388,8 @@ export class PrivacyWallet {
   }
 
   /**
-   * Execute a withdrawal
+   * Execute a withdrawal (TEST MODE - no ZK proof required)
+   * Uses testWithdraw function which bypasses proof verification
    */
   async executeWithdraw(
     token: Address,
@@ -400,44 +401,20 @@ export class PrivacyWallet {
       throw new Error("Contract service not initialized");
     }
 
-    // 1. Prepare inputs
+    // Get nullifiers for state update later
     const nullifiers = notes.map((n) => n.nullifier);
-    const inputNotes = notes.map((n) => ({
-      commitment: n.commitment,
-      amount: n.amount,
-      blinding: n.blinding,
-      leafIndex: n.leafIndex,
-      pathElements: this.generateMerkleProof(n.leafIndex).pathElements,
-      pathIndices: this.generateMerkleProof(n.leafIndex).pathIndices,
-    }));
 
-    // 2. Request Proof (Real or Mock via ContractService)
-    const proofResponse = await this.contractService.requestWithdrawProof({
-      inputNotes,
-      withdrawAmount: amount,
-      receiver,
-      token,
-      currentRoot: this.state.merkleTree.root,
-    });
+    // TEST MODE: Call testWithdraw directly (no proof needed)
+    console.log('[TEST MODE] Calling testWithdraw - bypassing ZK proofs');
+    const txHash = await this.contractService.testWithdraw(token, amount, receiver);
 
-    if (!proofResponse.success) {
-      throw new Error(proofResponse.error || "Failed to generate withdrawal proof");
-    }
-
-    // 3. Execute on Contract
-    const txHash = await this.contractService.withdraw({
-      publicInputs: proofResponse.publicInputs,
-      proofBytes: proofResponse.proofBytes,
-      receiver,
-    });
-
-    // 4. Wait for confirmation
+    // Wait for confirmation
     const result = await this.contractService.waitForTransaction(txHash);
     if (!result.success) {
       throw new Error("Withdrawal transaction failed");
     }
 
-    // 5. Update State
+    // Update State
     this.markNotesSpent(nullifiers);
 
     return { txHash };

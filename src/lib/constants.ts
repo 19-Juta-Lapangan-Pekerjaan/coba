@@ -165,6 +165,19 @@ export const GELAP_SHIELDED_ACCOUNT_ABI = [
     type: "function",
   },
 
+  // Test Withdraw (no proof required - FOR TESTING ONLY)
+  {
+    inputs: [
+      { internalType: "address", name: "token", type: "address" },
+      { internalType: "uint256", name: "amount", type: "uint256" },
+      { internalType: "address", name: "receiver", type: "address" },
+    ],
+    name: "testWithdraw",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+
   // Events
   {
     anonymous: false,
