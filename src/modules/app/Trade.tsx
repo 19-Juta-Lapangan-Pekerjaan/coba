@@ -46,7 +46,8 @@ export default function Trade() {
   const { data: walletClient } = useWalletClient();
   const { privacyWallet, refreshBalance } = useApp();
 
-  () => SUPPORTED_TOKENS[DEFAULT_CHAIN_ID] ?? [],
+  const supportedTokens = useMemo(
+    () => SUPPORTED_TOKENS[DEFAULT_CHAIN_ID] ?? [],
     []
   );
 
