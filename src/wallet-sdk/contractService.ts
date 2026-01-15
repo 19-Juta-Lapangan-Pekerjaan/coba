@@ -7,6 +7,8 @@ import {
   encodeFunctionData,
   decodeEventLog,
   parseEventLogs,
+  encodeAbiParameters,
+  keccak256,
 } from 'viem';
 
 import {
@@ -522,8 +524,8 @@ export class ContractService {
       return await response.json();
     } catch (error) {
       // Mock response for development
-      console.warn('Prover API not available, returning mock proof');
-      return this.generateMockProof();
+      console.warn('Prover API not available, returning mock withdraw proof');
+      return this.generateMockWithdrawProof(request);
     }
   }
 
@@ -537,6 +539,51 @@ export class ContractService {
       proofBytes: ('0x' + '00'.repeat(256)) as Hex,
       success: true,
       error: 'MOCK_PROOF - Will not verify on-chain',
+    };
+  }
+
+  /**
+   * Generate a mock WITHDRAW proof with properly encoded publicInputs
+   * This allows MockSP1Verifier to pass and contract to decode correctly
+   */
+  private generateMockWithdrawProof(request: WithdrawProofRequest): ProofResponse {
+    // ABI encode WithdrawPublicInputsStruct:
+    // struct WithdrawPublicInputsStruct {
+    //     bytes32 newRoot;
+    //     bytes32[] nullifiers;
+    //     address token;
+    //     uint256 amount;
+    //     address receiver;
+    //     bytes32[] newCommitments;
+    // }
+
+    const mockNullifier = keccak256(`0x${Date.now().toString(16).padStart(64, '0')}`);
+    const newRoot = request.currentRoot || ('0x' + '11'.repeat(32)) as Hex;
+
+    const publicInputs = encodeAbiParameters(
+      [
+        { name: 'newRoot', type: 'bytes32' },
+        { name: 'nullifiers', type: 'bytes32[]' },
+        { name: 'token', type: 'address' },
+        { name: 'amount', type: 'uint256' },
+        { name: 'receiver', type: 'address' },
+        { name: 'newCommitments', type: 'bytes32[]' },
+      ],
+      [
+        newRoot,
+        [mockNullifier], // One mock nullifier
+        request.token,
+        request.withdrawAmount,
+        request.receiver,
+        [], // No new commitments for simple withdraw
+      ]
+    );
+
+    return {
+      publicInputs,
+      proofBytes: ('0x' + '00'.repeat(256)) as Hex, // MockSP1Verifier ignores this
+      success: true,
+      error: 'MOCK_WITHDRAW_PROOF - For testing only',
     };
   }
 
