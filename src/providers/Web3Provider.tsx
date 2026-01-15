@@ -5,10 +5,10 @@ if (typeof window === "undefined") {
   (global as any).indexedDB = {
     open: () => ({
       result: {},
-      addEventListener: () => {},
-      removeEventListener: () => {},
-      onsuccess: () => {},
-      onerror: () => {},
+      addEventListener: () => { },
+      removeEventListener: () => { },
+      onsuccess: () => { },
+      onerror: () => { },
     }),
   };
 }
@@ -31,7 +31,7 @@ const queryClient = new QueryClient();
 const config = getDefaultConfig({
   appName: "Gelap",
   projectId: "f8aabd752876f7f9ef70f2ed2ff74639", // Can be replaced with other walletconnect project IDs
-  chains: [mainnet, sepolia, mantle, mantleSepoliaTestnet],
+  chains: [mantleSepoliaTestnet, mantle, mainnet, sepolia],
   ssr: false,
 });
 
