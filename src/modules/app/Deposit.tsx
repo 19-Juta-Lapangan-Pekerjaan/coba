@@ -6,6 +6,7 @@ import {
   useBalance,
   usePublicClient,
   useWalletClient,
+  useSwitchChain,
 } from "wagmi";
 import * as motion from "motion/react-client";
 import {
@@ -58,7 +59,10 @@ export default function Deposit() {
   const { privacyWallet, refreshBalance } = useApp();
 
   // Get supported tokens for current chain
-  const tokens = SUPPORTED_TOKENS[chainId ?? DEFAULT_CHAIN_ID] ?? [];
+  const tokens = SUPPORTED_TOKENS[DEFAULT_CHAIN_ID] ?? [];
+
+  const { switchChain } = useSwitchChain();
+  const isWrongNetwork = chainId !== DEFAULT_CHAIN_ID;
 
   // Local state
   const [state, setState] = useState<DepositState>({
@@ -321,6 +325,28 @@ export default function Deposit() {
     );
   }
 
+  if (isWrongNetwork) {
+    return (
+      <div className="p-6 max-w-xl mx-auto">
+        <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-8 text-center">
+          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-lg font-semibold text-white mb-2">
+            Wrong Network
+          </h2>
+          <p className="text-zinc-500 text-sm mb-6">
+            Please connect to Mantle Sepolia Testnet to use this feature.
+          </p>
+          <button
+            onClick={() => switchChain({ chainId: DEFAULT_CHAIN_ID })}
+            className="px-6 py-3 bg-red-600 hover:bg-red-500 text-white font-medium rounded-lg transition-colors"
+          >
+            Switch to Mantle Sepolia
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 max-w-xl mx-auto">
       {/* Header */}
@@ -346,20 +372,18 @@ export default function Deposit() {
           return (
             <div
               key={step}
-              className={`flex items-center gap-2 ${
-                isLastStep ? "" : "flex-1"
-              }`}
+              className={`flex items-center gap-2 ${isLastStep ? "" : "flex-1"
+                }`}
             >
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-                  isSuccess
-                    ? "bg-green-500 text-white"
-                    : isCurrent
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${isSuccess
+                  ? "bg-green-500 text-white"
+                  : isCurrent
                     ? "bg-purple-500 text-white"
                     : isCompleted
-                    ? "bg-green-500 text-white"
-                    : "bg-zinc-800 text-zinc-500"
-                }`}
+                      ? "bg-green-500 text-white"
+                      : "bg-zinc-800 text-zinc-500"
+                  }`}
               >
                 {isCompleted || isSuccess ? (
                   <Check className="w-4 h-4" />
@@ -369,11 +393,10 @@ export default function Deposit() {
               </div>
               {index < 3 && (
                 <div
-                  className={`flex-1 h-0.5 ${
-                    thisStepIndex < currentStepIndex
-                      ? "bg-green-500"
-                      : "bg-zinc-800"
-                  }`}
+                  className={`flex-1 h-0.5 ${thisStepIndex < currentStepIndex
+                    ? "bg-green-500"
+                    : "bg-zinc-800"
+                    }`}
                 />
               )}
             </div>
@@ -400,11 +423,10 @@ export default function Deposit() {
                   <button
                     key={token.address}
                     onClick={() => updateState({ selectedToken: token })}
-                    className={`flex-1 p-3 rounded-lg border transition-all ${
-                      state.selectedToken?.address === token.address
-                        ? "border-purple-500 bg-purple-500/10"
-                        : "border-zinc-700 bg-zinc-800/50 hover:border-zinc-600"
-                    }`}
+                    className={`flex-1 p-3 rounded-lg border transition-all ${state.selectedToken?.address === token.address
+                      ? "border-purple-500 bg-purple-500/10"
+                      : "border-zinc-700 bg-zinc-800/50 hover:border-zinc-600"
+                      }`}
                   >
                     <div className="flex items-center justify-center gap-2">
                       <div className="w-6 h-6 bg-zinc-700 rounded-full flex items-center justify-center text-xs font-bold text-white">

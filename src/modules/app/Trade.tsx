@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
-import { useAccount, usePublicClient, useWalletClient } from "wagmi";
+import { useAccount, usePublicClient, useWalletClient, useSwitchChain } from "wagmi";
 import { formatUnits } from "viem";
 import {
   SUPPORTED_TOKENS,
@@ -46,11 +46,12 @@ export default function Trade() {
   const { data: walletClient } = useWalletClient();
   const { privacyWallet, refreshBalance } = useApp();
 
-  // Get supported tokens
-  const supportedTokens = useMemo(
-    () => SUPPORTED_TOKENS[chainId ?? DEFAULT_CHAIN_ID] ?? [],
-    [chainId]
+  () => SUPPORTED_TOKENS[DEFAULT_CHAIN_ID] ?? [],
+    []
   );
+
+  const { switchChain } = useSwitchChain();
+  const isWrongNetwork = chainId !== DEFAULT_CHAIN_ID;
 
   const [sellToken, setSellToken] = useState<TokenInfo>(
     supportedTokens[0] || {
@@ -281,6 +282,30 @@ export default function Trade() {
   const isExecuteDisabled =
     !sellAmount || sellValue <= 0 || transactionStep !== "idle";
 
+  !sellAmount || sellValue <= 0 || transactionStep !== "idle";
+
+  if (isWrongNetwork) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto">
+        <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-8 text-center">
+          <Shield className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-lg font-semibold text-white mb-2">
+            Wrong Network
+          </h2>
+          <p className="text-zinc-500 text-sm mb-6">
+            Please connect to Mantle Sepolia Testnet to use this feature.
+          </p>
+          <button
+            onClick={() => switchChain({ chainId: DEFAULT_CHAIN_ID })}
+            className="px-6 py-3 bg-red-600 hover:bg-red-500 text-white font-medium rounded-lg transition-colors"
+          >
+            Switch to Mantle Sepolia
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
@@ -338,9 +363,8 @@ export default function Trade() {
                   onChange={(e) => handleSellAmountChange(e.target.value)}
                   placeholder="0.00"
                   disabled={transactionStep !== "idle"}
-                  className={`w-full bg-transparent text-2xl text-white placeholder-zinc-600 outline-none disabled:opacity-50 ${
-                    isInsufficientBalance ? "text-red-400" : ""
-                  }`}
+                  className={`w-full bg-transparent text-2xl text-white placeholder-zinc-600 outline-none disabled:opacity-50 ${isInsufficientBalance ? "text-red-400" : ""
+                    }`}
                 />
                 {isInsufficientBalance && transactionStep === "idle" && (
                   <p className="mt-1 text-xs text-red-400">
@@ -426,9 +450,8 @@ export default function Trade() {
                     className="w-4 h-4 text-cyan-500 bg-zinc-800 border-zinc-600 focus:ring-cyan-500 focus:ring-offset-zinc-900 disabled:opacity-50"
                   />
                   <span
-                    className={`text-sm ${
-                      orderType === type.id ? "text-white" : "text-zinc-500"
-                    }`}
+                    className={`text-sm ${orderType === type.id ? "text-white" : "text-zinc-500"
+                      }`}
                   >
                     {type.label}
                   </span>
@@ -445,17 +468,16 @@ export default function Trade() {
                   scale: isExecuteDisabled || isInsufficientBalance ? 1 : 1.01,
                 }}
                 whileTap={{ scale: 0.99 }}
-                className={`w-full mt-6 py-4 rounded-xl font-medium transition-all ${
-                  isExecuteDisabled || isInsufficientBalance
-                    ? "bg-zinc-800 border border-zinc-700 text-zinc-500 cursor-not-allowed"
-                    : "bg-gradient-to-r from-cyan-600 to-blue-600 text-white hover:from-cyan-500 hover:to-blue-500"
-                }`}
+                className={`w-full mt-6 py-4 rounded-xl font-medium transition-all ${isExecuteDisabled || isInsufficientBalance
+                  ? "bg-zinc-800 border border-zinc-700 text-zinc-500 cursor-not-allowed"
+                  : "bg-gradient-to-r from-cyan-600 to-blue-600 text-white hover:from-cyan-500 hover:to-blue-500"
+                  }`}
               >
                 {isInsufficientBalance
                   ? "INSUFFICIENT BALANCE"
                   : sellAmount && parseFloat(sellAmount) > 0
-                  ? "EXECUTE TRADE"
-                  : "ENTER VOLUME"}
+                    ? "EXECUTE TRADE"
+                    : "ENTER VOLUME"}
               </motion.button>
             ) : transactionStep === "done" ? (
               <motion.button
@@ -508,13 +530,12 @@ export default function Trade() {
               {/* Step 1: Executing Transaction */}
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    getStepStatus("executing") === "completed"
-                      ? "bg-green-500"
-                      : getStepStatus("executing") === "active"
+                  className={`w-8 h-8 rounded-full flex items-center justify-center ${getStepStatus("executing") === "completed"
+                    ? "bg-green-500"
+                    : getStepStatus("executing") === "active"
                       ? "bg-cyan-500 animate-pulse"
                       : "bg-zinc-700"
-                  }`}
+                    }`}
                 >
                   {getStepStatus("executing") === "completed" ? (
                     <Check className="w-4 h-4 text-white" />
@@ -526,13 +547,12 @@ export default function Trade() {
                 </div>
                 <div className="flex-1">
                   <p
-                    className={`text-sm ${
-                      getStepStatus("executing") === "active"
-                        ? "text-cyan-400"
-                        : getStepStatus("executing") === "completed"
+                    className={`text-sm ${getStepStatus("executing") === "active"
+                      ? "text-cyan-400"
+                      : getStepStatus("executing") === "completed"
                         ? "text-green-400"
                         : "text-zinc-500"
-                    }`}
+                      }`}
                   >
                     Executing Transaction
                   </p>
@@ -542,13 +562,12 @@ export default function Trade() {
               {/* Step 2: Sign Transaction */}
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    getStepStatus("signing") === "completed"
-                      ? "bg-green-500"
-                      : getStepStatus("signing") === "active"
+                  className={`w-8 h-8 rounded-full flex items-center justify-center ${getStepStatus("signing") === "completed"
+                    ? "bg-green-500"
+                    : getStepStatus("signing") === "active"
                       ? "bg-cyan-500 animate-pulse"
                       : "bg-zinc-700"
-                  }`}
+                    }`}
                 >
                   {getStepStatus("signing") === "completed" ? (
                     <Check className="w-4 h-4 text-white" />
@@ -560,13 +579,12 @@ export default function Trade() {
                 </div>
                 <div className="flex-1">
                   <p
-                    className={`text-sm ${
-                      getStepStatus("signing") === "active"
-                        ? "text-cyan-400"
-                        : getStepStatus("signing") === "completed"
+                    className={`text-sm ${getStepStatus("signing") === "active"
+                      ? "text-cyan-400"
+                      : getStepStatus("signing") === "completed"
                         ? "text-green-400"
                         : "text-zinc-500"
-                    }`}
+                      }`}
                   >
                     Sign Transaction
                   </p>
@@ -576,13 +594,12 @@ export default function Trade() {
               {/* Step 3: Create ZK Proof */}
               <div className="flex items-start gap-3">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    getStepStatus("zk-proof") === "completed"
-                      ? "bg-green-500"
-                      : getStepStatus("zk-proof") === "active"
+                  className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${getStepStatus("zk-proof") === "completed"
+                    ? "bg-green-500"
+                    : getStepStatus("zk-proof") === "active"
                       ? "bg-cyan-500 animate-pulse"
                       : "bg-zinc-700"
-                  }`}
+                    }`}
                 >
                   {getStepStatus("zk-proof") === "completed" ? (
                     <Check className="w-4 h-4 text-white" />
@@ -594,13 +611,12 @@ export default function Trade() {
                 </div>
                 <div className="flex-1">
                   <p
-                    className={`text-sm ${
-                      getStepStatus("zk-proof") === "active"
-                        ? "text-cyan-400"
-                        : getStepStatus("zk-proof") === "completed"
+                    className={`text-sm ${getStepStatus("zk-proof") === "active"
+                      ? "text-cyan-400"
+                      : getStepStatus("zk-proof") === "completed"
                         ? "text-green-400"
                         : "text-zinc-500"
-                    }`}
+                      }`}
                   >
                     Create ZK Proof
                   </p>
@@ -626,12 +642,11 @@ export default function Trade() {
               {/* Step 4: Done */}
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    getStepStatus("done") === "completed" ||
+                  className={`w-8 h-8 rounded-full flex items-center justify-center ${getStepStatus("done") === "completed" ||
                     transactionStep === "done"
-                      ? "bg-green-500"
-                      : "bg-zinc-700"
-                  }`}
+                    ? "bg-green-500"
+                    : "bg-zinc-700"
+                    }`}
                 >
                   {transactionStep === "done" ? (
                     <Check className="w-4 h-4 text-white" />
@@ -641,11 +656,10 @@ export default function Trade() {
                 </div>
                 <div className="flex-1">
                   <p
-                    className={`text-sm ${
-                      transactionStep === "done"
-                        ? "text-green-400"
-                        : "text-zinc-500"
-                    }`}
+                    className={`text-sm ${transactionStep === "done"
+                      ? "text-green-400"
+                      : "text-zinc-500"
+                      }`}
                   >
                     Done
                   </p>
@@ -710,7 +724,7 @@ export default function Trade() {
               </div>
               <div className="flex justify-between">
                 <span className="text-zinc-500">Exchange Rate</span>
-                <span className="text-white">1 MTKN = 0.5 MGLD</span>
+                <span className="text-white">1 {sellToken.symbol} = {sellToken.symbol === "mUSDT" ? "0.5" : "2.0"} {buyToken.symbol}</span>
               </div>
             </div>
           </div>

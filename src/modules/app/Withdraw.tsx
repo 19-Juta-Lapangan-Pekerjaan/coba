@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
-import { useAccount, usePublicClient, useWalletClient } from "wagmi";
+import { useAccount, usePublicClient, useWalletClient, useSwitchChain } from "wagmi";
 import * as motion from "motion/react-client";
 import {
   Shield,
@@ -50,7 +50,10 @@ export default function Withdraw() {
     useApp();
 
   // Get supported tokens
-  const tokens = SUPPORTED_TOKENS[chainId ?? DEFAULT_CHAIN_ID] ?? [];
+  const tokens = SUPPORTED_TOKENS[DEFAULT_CHAIN_ID] ?? [];
+
+  const { switchChain } = useSwitchChain();
+  const isWrongNetwork = chainId !== DEFAULT_CHAIN_ID;
 
   // Local state
   const [state, setState] = useState<WithdrawState>({
@@ -261,6 +264,28 @@ export default function Withdraw() {
     );
   }
 
+  if (isWrongNetwork) {
+    return (
+      <div className="p-6 max-w-xl mx-auto">
+        <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-8 text-center">
+          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-lg font-semibold text-white mb-2">
+            Wrong Network
+          </h2>
+          <p className="text-zinc-500 text-sm mb-6">
+            Please connect to Mantle Sepolia Testnet to use this feature.
+          </p>
+          <button
+            onClick={() => switchChain({ chainId: DEFAULT_CHAIN_ID })}
+            className="px-6 py-3 bg-red-600 hover:bg-red-500 text-white font-medium rounded-lg transition-colors"
+          >
+            Switch to Mantle Sepolia
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 max-w-xl mx-auto">
       {/* Header */}
@@ -294,12 +319,12 @@ export default function Withdraw() {
             >
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${isSuccess
-                    ? "bg-green-500 text-white"
-                    : isCurrent
-                      ? "bg-purple-500 text-white"
-                      : isCompleted
-                        ? "bg-green-500 text-white"
-                        : "bg-zinc-800 text-zinc-500"
+                  ? "bg-green-500 text-white"
+                  : isCurrent
+                    ? "bg-purple-500 text-white"
+                    : isCompleted
+                      ? "bg-green-500 text-white"
+                      : "bg-zinc-800 text-zinc-500"
                   }`}
               >
                 {isCompleted || isSuccess ? (
@@ -313,8 +338,8 @@ export default function Withdraw() {
                   className={`flex-1 h-0.5 ${["amount", "confirm", "generating", "success"].indexOf(
                     state.step
                   ) > index
-                      ? "bg-green-500"
-                      : "bg-zinc-800"
+                    ? "bg-green-500"
+                    : "bg-zinc-800"
                     }`}
                 />
               )}
@@ -354,16 +379,16 @@ export default function Withdraw() {
                     key={note.commitment}
                     onClick={() => toggleNoteSelection(note)}
                     className={`w-full p-4 rounded-lg border transition-all text-left ${isSelected
-                        ? "border-purple-500 bg-purple-500/10"
-                        : "border-zinc-700 bg-zinc-800/50 hover:border-zinc-600"
+                      ? "border-purple-500 bg-purple-500/10"
+                      : "border-zinc-700 bg-zinc-800/50 hover:border-zinc-600"
                       }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div
                           className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isSelected
-                              ? "border-purple-500 bg-purple-500"
-                              : "border-zinc-600"
+                            ? "border-purple-500 bg-purple-500"
+                            : "border-zinc-600"
                             }`}
                         >
                           {isSelected && (
