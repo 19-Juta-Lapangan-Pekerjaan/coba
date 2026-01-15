@@ -1,7 +1,11 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, usePublicClient, useWalletClient } from "wagmi";
+import { formatUnits } from "viem";
+import { SUPPORTED_TOKENS, DEFAULT_CHAIN_ID, type TokenInfo } from "@/src/lib/constants";
+import { ContractService } from "@/src/wallet-sdk/contractService";
+import { useEffect } from "react";
 import * as motion from "motion/react-client";
 import {
   Lock,
@@ -15,37 +19,7 @@ import {
 import { useApp } from "@/src/contexts/AppContext";
 import { getErrorMessage } from "@/src/lib/errorHandling";
 
-// Mock token data - Mock Token and Mock Gold
-interface Token {
-  id: string;
-  symbol: string;
-  name: string;
-  icon: string;
-  color: string;
-}
 
-const tokenData: Token[] = [
-  {
-    id: "mtkn",
-    symbol: "MTKN",
-    name: "Mock Token",
-    icon: "M",
-    color: "bg-purple-600",
-  },
-  {
-    id: "mgld",
-    symbol: "MGLD",
-    name: "Mock Gold",
-    icon: "G",
-    color: "bg-yellow-500",
-  },
-];
-
-// Default balance for all tokens
-const DEFAULT_BALANCE = 3;
-
-// Exchange rate: 1 MTKN = 0.5 MGLD (adjustable)
-const EXCHANGE_RATE = 0.5;
 
 type OrderType = "market" | "limit" | "twap";
 type TransactionStep =
@@ -65,19 +39,61 @@ interface ZKProofData {
 }
 
 export default function Trade() {
+  const { address, isConnected, chainId } = useAccount();
+  const publicClient = usePublicClient();
+  const { data: walletClient } = useWalletClient();
   const { privacyWallet, refreshBalance } = useApp();
-  const { isConnected } = useAccount();
 
-  const [sellToken, setSellToken] = useState(tokenData[0]);
-  const [buyToken, setBuyToken] = useState(tokenData[1]);
+  // Get supported tokens
+  const supportedTokens = useMemo(() =>
+    SUPPORTED_TOKENS[chainId ?? DEFAULT_CHAIN_ID] ?? [],
+    [chainId]);
+
+  const [sellToken, setSellToken] = useState<TokenInfo>(supportedTokens[0] || {
+    address: "0x" as `0x${string}`,
+    symbol: "ETH",
+    name: "Ether",
+    decimals: 18
+  });
+
+  const [buyToken, setBuyToken] = useState<TokenInfo>(supportedTokens[1] || {
+    address: "0x" as `0x${string}`,
+    symbol: "USDC",
+    name: "Teleport USDC",
+    decimals: 6
+  });
+
   const [sellAmount, setSellAmount] = useState("");
   const [orderType, setOrderType] = useState<OrderType>("market");
 
-  // Token balances (stateful so they can be updated after trades)
-  const [balances, setBalances] = useState<Record<string, number>>({
-    mtkn: DEFAULT_BALANCE,
-    mgld: DEFAULT_BALANCE,
-  });
+  // Real token balances
+  const [balances, setBalances] = useState<Record<string, number>>({});
+
+  // Fetch balances
+  useEffect(() => {
+    if (!address || !publicClient) return;
+
+    const fetchBalances = async () => {
+      const newBalances: Record<string, number> = {};
+      const contractService = new ContractService(publicClient);
+
+      for (const token of supportedTokens) {
+        try {
+          const balance = await contractService.getTokenBalance(token.address, address);
+          newBalances[token.address] = parseFloat(formatUnits(balance, token.decimals));
+        } catch (e) {
+          console.error(`Failed to fetch balance for ${token.symbol}:`, e);
+          newBalances[token.address] = 0;
+        }
+      }
+      setBalances(newBalances);
+    };
+
+    fetchBalances();
+    // Poll every 10s
+    const interval = setInterval(fetchBalances, 10000);
+    return () => clearInterval(interval);
+  }, [address, publicClient, supportedTokens]);
 
   // Transaction state
   const [transactionStep, setTransactionStep] =
@@ -90,18 +106,20 @@ export default function Trade() {
   const buyAmount = useMemo(() => {
     if (sellAmount && !isNaN(parseFloat(sellAmount))) {
       const sellValue = parseFloat(sellAmount);
-      // When selling MTKN for MGLD, multiply by rate
-      // When selling MGLD for MTKN, divide by rate
-      let calculatedBuy: number;
-      if (sellToken.id === "mtkn") {
-        calculatedBuy = sellValue * EXCHANGE_RATE;
-      } else {
-        calculatedBuy = sellValue / EXCHANGE_RATE;
-      }
+      // Hardcoded mock rate for now until we have a real oracle/AMM
+      const calculateRate = (from: string, to: string) => {
+        if (from === "mUSDT" && to === "SepMNT") return 0.5; // 1 mUSDT = 0.5 SepMNT
+        if (from === "SepMNT" && to === "mUSDT") return 2.0; // 1 SepMNT = 2.0 mUSDT
+        return 1.0;
+      };
+
+      const rate = calculateRate(sellToken.symbol, buyToken.symbol);
+      const calculatedBuy = sellValue * rate;
+
       return calculatedBuy.toFixed(6).replace(/\.?0+$/, "");
     }
     return "";
-  }, [sellAmount, sellToken.id]);
+  }, [sellAmount, sellToken.symbol, buyToken.symbol]);
 
   const handleSwapTokens = () => {
     const temp = sellToken;
@@ -142,13 +160,14 @@ export default function Trade() {
     if (!sellAmount || parseFloat(sellAmount) <= 0) return;
 
     const sellValue = parseFloat(sellAmount);
-    const currentBalance = balances[sellToken.id];
+    const currentBalance = balances[sellToken.address] || 0;
 
     // Validate balance
     if (sellValue > currentBalance) {
       setErrorMessage(
         `Insufficient balance. You only have ${currentBalance} ${sellToken.symbol}`
       );
+
       setTransactionStep("failed");
       return;
     }
@@ -245,7 +264,7 @@ export default function Trade() {
   };
 
   const sellValue = sellAmount ? parseFloat(sellAmount) : 0;
-  const isInsufficientBalance = sellValue > balances[sellToken.id];
+  const isInsufficientBalance = sellValue > (balances[sellToken.address] || 0);
   const isExecuteDisabled =
     !sellAmount || sellValue <= 0 || transactionStep !== "idle";
 
@@ -286,16 +305,16 @@ export default function Trade() {
                 </div>
                 <div className="flex items-center gap-3 mb-4">
                   <div
-                    className={`w-10 h-10 ${sellToken.color} rounded-full flex items-center justify-center text-lg font-bold text-white`}
+                    className={`w-10 h-10 bg-zinc-700 rounded-full flex items-center justify-center text-lg font-bold text-white`}
                   >
-                    {sellToken.icon}
+                    {sellToken.icon || sellToken.symbol[0]}
                   </div>
                   <div>
                     <p className="text-white font-semibold">
                       {sellToken.symbol}
                     </p>
                     <p className="text-zinc-500 text-xs">
-                      Balance: {balances[sellToken.id].toLocaleString()}
+                      Balance: {(balances[sellToken.address] || 0n).toLocaleString()}
                     </p>
                   </div>
                 </div>
@@ -315,7 +334,7 @@ export default function Trade() {
                 )}
                 <button
                   onClick={() =>
-                    setSellAmount(balances[sellToken.id].toString())
+                    setSellAmount((balances[sellToken.address] || 0).toString())
                   }
                   disabled={transactionStep !== "idle"}
                   className="mt-2 text-xs text-cyan-400 hover:text-cyan-300 disabled:opacity-50"
@@ -348,16 +367,16 @@ export default function Trade() {
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div
-                      className={`w-10 h-10 ${buyToken.color} rounded-full flex items-center justify-center text-lg font-bold text-white`}
+                      className={`w-10 h-10 bg-zinc-700 rounded-full flex items-center justify-center text-lg font-bold text-white`}
                     >
-                      {buyToken.icon}
+                      {buyToken.icon || buyToken.symbol[0]}
                     </div>
                     <div>
                       <p className="text-white font-semibold">
                         {buyToken.symbol}
                       </p>
                       <p className="text-zinc-500 text-xs">
-                        Balance: {balances[buyToken.id].toLocaleString()}
+                        Balance: {(balances[buyToken.address] || 0n).toLocaleString()}
                       </p>
                     </div>
                   </div>
@@ -365,7 +384,7 @@ export default function Trade() {
                 <div className="text-2xl text-white">{buyAmount || "0.00"}</div>
                 <p className="mt-2 text-xs text-zinc-500">
                   Rate: 1 {sellToken.symbol} ={" "}
-                  {sellToken.id === "mtkn" ? EXCHANGE_RATE : 1 / EXCHANGE_RATE}{" "}
+                  {sellToken.symbol === "mUSDT" ? "0.5" : "2.0"}{" "}
                   {buyToken.symbol}
                 </p>
               </div>
